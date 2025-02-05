@@ -10,6 +10,11 @@
 
 你可以尝试通过你的鼠标驱动（如罗技的 G Hub、雷蛇的雷云等）设置你的鼠标的 __“回报率”__（一些地方叫作 __”轮询率“__）到 __125Hz__ 或者相近的数值，情况应该会有很大改善。
 
+## 与其它使用 ADB 的程序冲突
+
+如果你在使用其它同样依赖于 ADB 连接安卓设备的电脑软件（如 Android Studio）时使用本软件，你可能会遇到本软件无法成功连接设备的情况。类似地，你在使用本软件连接的安卓设备也无法被其它使用 ADB 的软件连接。
+这是 ADB 本身的限制，目前没有解决办法。
+
 ## 与 Bonjour 冲突
 
 一些同类软件，如 [barrier](https://github.com/debauchee/barrier) 和 [deskflow](https://github.com/deskflow/deskflow)，会使用 [Bonjour](https://developer.apple.com/bonjour/) 来简化网络连接。

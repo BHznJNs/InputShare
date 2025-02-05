@@ -1,8 +1,10 @@
+import asyncio
 import socket
 import threading
 import time
 import queue
 
+from concurrent.futures import ThreadPoolExecutor
 from typing import Callable
 from pynput import mouse, keyboard
 from scrcpy_client import key_scancode_map
@@ -16,24 +18,74 @@ from utils.config_manager import get_config
 
 CallbackResult = Exception | None
 SendDataCallback = Callable[[bytes], CallbackResult]
+SendDataAsyncCallback = Callable[[bytes], None]
 KeyEventCallback = Callable[[keyboard.Key | keyboard.KeyCode, bool], CallbackResult]
 MouseMoveCallback = Callable[[int, int, bool], CallbackResult]
 MouseClickCallback = Callable[[int, int, mouse.Button, bool, bool], CallbackResult]
 MouseScrollCallback = Callable[[int, int, int, int, bool], CallbackResult]
 
+def _customized_shortcuts(
+    k: SDL_Scancode | HIDKeymod | AKeyCode,
+    keymod_state: KeymodStateStore,
+    is_redirecting: bool,
+) -> list[bytes] | None:
+    if is_redirecting: return None
+    if keymod_state.has_key(HIDKeymod.HID_MOD_LEFT_ALT) or keymod_state.has_key(HIDKeymod.HID_MOD_RIGHT_ALT):
+        if k in [SDL_Scancode.SDL_SCANCODE_UP, SDL_Scancode.SDL_SCANCODE_DOWN]:
+            return [KeyEvent(KeymodStateStore(), [k]).serialize(), KeyEmptyEvent().serialize()]
+        if k == SDL_Scancode.SDL_SCANCODE_LEFTBRACKET:
+            return [
+                InjectKeyCode(AKeyCode.AKEYCODE_MEDIA_PREVIOUS, AKeyEventAction.AKEY_EVENT_ACTION_DOWN).serialize(),
+                InjectKeyCode(AKeyCode.AKEYCODE_MEDIA_PREVIOUS, AKeyEventAction.AKEY_EVENT_ACTION_UP).serialize()
+            ]
+        if k == SDL_Scancode.SDL_SCANCODE_RIGHTBRACKET:
+            return [
+                InjectKeyCode(AKeyCode.AKEYCODE_MEDIA_NEXT, AKeyEventAction.AKEY_EVENT_ACTION_DOWN).serialize(),
+                InjectKeyCode(AKeyCode.AKEYCODE_MEDIA_NEXT, AKeyEventAction.AKEY_EVENT_ACTION_UP).serialize()
+            ]
+        if k == SDL_Scancode.SDL_SCANCODE_BACKSLASH:
+            return [
+                InjectKeyCode(AKeyCode.AKEYCODE_MEDIA_PLAY_PAUSE, AKeyEventAction.AKEY_EVENT_ACTION_DOWN).serialize(),
+                InjectKeyCode(AKeyCode.AKEYCODE_MEDIA_PLAY_PAUSE, AKeyEventAction.AKEY_EVENT_ACTION_UP).serialize()
+            ]
+    return None
+
+def _compute_mouse_pointer_diff(cur_x: int, cur_y: int, last_x: int, last_y: int) -> tuple[int, int]:
+    diff_x = cur_x - last_x
+    diff_y = cur_y - last_y
+    speed = (diff_x ** 2 + diff_y ** 2) ** 0.5
+    speed_factor = get_config().mouse_speed
+    # check speed to prevent divide-by-zero error
+    min_scale = max(1, speed_factor / 2.5)
+    adjusted_scale = 1 if speed == 0 else min(min_scale, speed_factor / (speed ** 0.6))
+    diff_x = int(diff_x * adjusted_scale)
+    diff_y = int(diff_y * adjusted_scale)
+    return diff_x, diff_y
+
 def callback_context_wrapper(
     client_socket: socket.socket,
 ) -> tuple[
-    SendDataCallback,
+    SendDataCallback, SendDataAsyncCallback,
     KeyEventCallback, KeyEventCallback,
     MouseMoveCallback, MouseClickCallback, MouseScrollCallback,
 ]:
+    from input.controller import schedule_exit
+
+    executor = ThreadPoolExecutor()
     def send_data(data: bytes) -> CallbackResult:
         nonlocal client_socket, wakeup_counter
         wakeup_counter = 0
         try: client_socket.sendall(data)
         except Exception as e: return e
         return None
+    
+    def send_data_async(data: bytes):
+        async def _async(data: bytes):
+            res = await asyncio\
+                .get_running_loop()\
+                .run_in_executor(executor, send_data, data)
+            if res is not None: schedule_exit(res)
+        asyncio.run(_async(data))
 
     keyboard_init = HIDKeyboardInitEvent()
     send_data(keyboard_init.serialize())
@@ -41,36 +93,13 @@ def callback_context_wrapper(
     key_list: list[SDL_Scancode] = []
     manual_device_sleep = False
 
-    def customized_shortcuts(k: SDL_Scancode | HIDKeymod | AKeyCode, is_redirecting: bool) -> list[bytes] | None:
-        if is_redirecting: return None
-        if keymod_state.has_key(HIDKeymod.HID_MOD_LEFT_ALT) or keymod_state.has_key(HIDKeymod.HID_MOD_RIGHT_ALT):
-            if k in [SDL_Scancode.SDL_SCANCODE_UP, SDL_Scancode.SDL_SCANCODE_DOWN]:
-                return [KeyEvent(KeymodStateStore(), [k]).serialize(), KeyEmptyEvent().serialize()]
-            if k == SDL_Scancode.SDL_SCANCODE_LEFTBRACKET:
-                return [
-                    InjectKeyCode(AKeyCode.AKEYCODE_MEDIA_PREVIOUS, AKeyEventAction.AKEY_EVENT_ACTION_DOWN).serialize(),
-                    InjectKeyCode(AKeyCode.AKEYCODE_MEDIA_PREVIOUS, AKeyEventAction.AKEY_EVENT_ACTION_UP).serialize()
-                ]
-            if k == SDL_Scancode.SDL_SCANCODE_RIGHTBRACKET:
-                return [
-                    InjectKeyCode(AKeyCode.AKEYCODE_MEDIA_NEXT, AKeyEventAction.AKEY_EVENT_ACTION_DOWN).serialize(),
-                    InjectKeyCode(AKeyCode.AKEYCODE_MEDIA_NEXT, AKeyEventAction.AKEY_EVENT_ACTION_UP).serialize()
-                ]
-            if k == SDL_Scancode.SDL_SCANCODE_BACKSLASH:
-                return [
-                    InjectKeyCode(AKeyCode.AKEYCODE_MEDIA_PLAY_PAUSE, AKeyEventAction.AKEY_EVENT_ACTION_DOWN).serialize(),
-                    InjectKeyCode(AKeyCode.AKEYCODE_MEDIA_PLAY_PAUSE, AKeyEventAction.AKEY_EVENT_ACTION_UP).serialize()
-                ]
-        return None
-
-    def keyboard_press_callback(k: keyboard.Key | keyboard.KeyCode, is_redirecting: bool) -> CallbackResult:
+    def keyboard_press_callback(k: keyboard.Key | keyboard.KeyCode, is_redirecting: bool):
         if k not in key_scancode_map: return None
         generic_key = key_scancode_map[k]
-        shortcut_data = customized_shortcuts(generic_key, is_redirecting)
+        shortcut_data = _customized_shortcuts(generic_key, keymod_state, is_redirecting)
         if shortcut_data is not None:
             for data in shortcut_data:
-                if (res := send_data(data)) is not None: return res
-            return None
+                send_data_async(data); return
 
         if type(generic_key) == HIDKeymod:
             keymod_state.keydown(generic_key)
@@ -81,16 +110,16 @@ def callback_context_wrapper(
             if generic_key == AKeyCode.AKEYCODE_SOFT_SLEEP: manual_device_sleep = True
             if generic_key == AKeyCode.AKEYCODE_WAKEUP:     manual_device_sleep = False
             inject_key_code = InjectKeyCode(generic_key, AKeyEventAction.AKEY_EVENT_ACTION_DOWN)
-            return send_data(inject_key_code.serialize())
+            send_data_async(inject_key_code.serialize()); return
         if type(generic_key) == SDL_Scancode and generic_key not in key_list:
             key_list.append(generic_key)
             if len(key_list) > HID_KEYBOARD_MAX_KEYS:
                 key_to_remove = key_list[0]
                 key_list.remove(key_to_remove)
         key_event = KeyEvent(keymod_state, key_list)
-        return send_data(key_event.serialize())
+        send_data_async(key_event.serialize()); return
 
-    def keyboard_release_callback(k: keyboard.Key | keyboard.KeyCode, is_redirecting: bool) -> CallbackResult:
+    def keyboard_release_callback(k: keyboard.Key | keyboard.KeyCode, is_redirecting: bool):
         if k not in key_scancode_map: return None
         generic_key = key_scancode_map[k]
         if type(generic_key) == HIDKeymod:
@@ -99,11 +128,11 @@ def callback_context_wrapper(
         if not is_redirecting: return None
         if type(generic_key) == AKeyCode:
             inject_key_code = InjectKeyCode(generic_key, AKeyEventAction.AKEY_EVENT_ACTION_UP)
-            return send_data(inject_key_code.serialize())
+            send_data_async(inject_key_code.serialize()); return
         if type(generic_key) == SDL_Scancode and generic_key in key_list:
             key_list.remove(generic_key)
         key_event = KeyEvent(keymod_state, key_list)
-        return send_data(key_event.serialize())
+        send_data_async(key_event.serialize()); return
 
     # --- --- --- --- --- ---
 
@@ -115,7 +144,6 @@ def callback_context_wrapper(
     wakeup_counter = 0
 
     def mouse_movement_sender():
-        from input.controller import schedule_exit
         nonlocal movement_queue, wakeup_counter
 
         def send_wakeup_signal() -> CallbackResult:
@@ -163,26 +191,7 @@ def callback_context_wrapper(
                 schedule_exit(res); break
     threading.Thread(target=mouse_movement_sender, daemon=True).start()
 
-    def compute_mouse_pointer_diff(cur_x: int, cur_y: int) -> tuple[int, int] | None:
-        nonlocal last_mouse_point
-        if last_mouse_point is None:
-            last_mouse_point = (cur_x, cur_y)
-            return None
-        last_x, last_y = last_mouse_point
-        last_mouse_point = (cur_x, cur_y)
-
-        diff_x = cur_x - last_x
-        diff_y = cur_y - last_y
-        speed = (diff_x ** 2 + diff_y ** 2) ** 0.5
-        speed_factor = get_config().mouse_speed
-        # check speed to prevent divide-by-zero error
-        min_scale = max(1, speed_factor / 2.5)
-        adjusted_scale = 1 if speed == 0 else min(min_scale, speed_factor / (speed ** 0.6))
-        diff_x = int(diff_x * adjusted_scale)
-        diff_y = int(diff_y * adjusted_scale)
-        return diff_x, diff_y
-
-    def mouse_move_callback(cur_x: int, cur_y: int, is_redirecting: bool) -> CallbackResult:
+    def mouse_move_callback(cur_x: int, cur_y: int, is_redirecting: bool):
         nonlocal last_mouse_point
         if not is_redirecting or get_config().share_keyboard_only:
             last_mouse_point = None
@@ -192,12 +201,15 @@ def callback_context_wrapper(
             last_mouse_point = (cur_x, cur_y)
             edge_portal_passing_event.clear()
             return None
-        res = compute_mouse_pointer_diff(cur_x, cur_y)
-        if res is None: return None
-        try: movement_queue.put(res, block=False)
+        if last_mouse_point is None:
+            last_mouse_point = (cur_x, cur_y)
+            return None
+        diff_movement = _compute_mouse_pointer_diff(cur_x, cur_y, *last_mouse_point)
+        last_mouse_point = (cur_x, cur_y)
+        try: movement_queue.put(diff_movement, block=False)
         except queue.Full: movement_queue.get() # if the queue is full, remove the oldest element
 
-    def mouse_click_callback(_cur_x: int, _cur_y: int, button: mouse.Button, pressed: bool, is_redirecting: bool) -> CallbackResult:
+    def mouse_click_callback(_cur_x: int, _cur_y: int, button: mouse.Button, pressed: bool, is_redirecting: bool):
         nonlocal last_mouse_point
         if not is_redirecting or get_config().share_keyboard_only:
             return None
@@ -213,24 +225,25 @@ def callback_context_wrapper(
                 hid_button = HID_MouseButton.MOUSE_BUTTON_MIDDLE
             case mouse.Button.x1:
                 keycode = InjectKeyCode(AKeyCode.AKEYCODE_BACK, keyevent_action)
-                return send_data(keycode.serialize())
+                send_data_async(keycode.serialize()); return
             case mouse.Button.x2:
                 keycode = InjectKeyCode(AKeyCode.AKEYCODE_NOTIFICATION, keyevent_action)
-                return send_data(keycode.serialize())
+                send_data_async(keycode.serialize()); return
 
         if pressed: mouse_button_state.mouse_down(hid_button)
         else: mouse_button_state.mouse_up(hid_button)
-        mouse_move_event = MouseClickEvent(mouse_button_state)
-        return send_data(mouse_move_event.serialize())
+        mouse_click_event = MouseClickEvent(mouse_button_state)
+        send_data_async(mouse_click_event.serialize())
 
-    def mouse_scroll_callback(_cur_x: int, _cur_y: int, _dx: int, dy: int, is_redirecting: bool) -> CallbackResult:
+    def mouse_scroll_callback(_cur_x: int, _cur_y: int, _dx: int, dy: int, is_redirecting: bool):
         if not is_redirecting or get_config().share_keyboard_only:
             return None
         mouse_scroll_event = MouseScrollEvent(dy)
-        return send_data(mouse_scroll_event.serialize())
+        send_data_async(mouse_scroll_event.serialize())
 
     return (
         send_data,
+        send_data_async,
         keyboard_press_callback,
         keyboard_release_callback,
         mouse_move_callback,

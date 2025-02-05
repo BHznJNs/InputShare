@@ -4,7 +4,9 @@ from pynput import keyboard, mouse
 from input import EXIT_KEY_COMBINATION, SWITCH_KEY_COMBINATION
 from scrcpy_client.clipboard_event import GetClipboardEvent, SetClipboardEvent
 from scrcpy_client.hid_event import KeyEmptyEvent
-from input.callbacks import KeyEventCallback, MouseClickCallback, MouseMoveCallback, MouseScrollCallback, SendDataCallback
+from input.callbacks import KeyEventCallback,\
+    MouseClickCallback, MouseMoveCallback, MouseScrollCallback,\
+    SendDataCallback, SendDataAsyncCallback
 from input.edge_portal import edge_portal_thread_factory
 from server.scrcpy_receiver import ReceivedClipboardText
 from ui.fullscreen_mask import mask_thread_factory
@@ -46,55 +48,49 @@ exit_hotkey = keyboard.HotKey(keyboard.HotKey.parse(EXIT_KEY_COMBINATION), sched
 
 def keyboard_press_handler_factory(callback: KeyEventCallback):
     def keyboard_press_handler(k: keyboard.Key | keyboard.KeyCode | None):
-        global is_redirecting, keyboard_listener, main_errno
+        global is_redirecting, keyboard_listener
         assert keyboard_listener is not None
         if k is None: return
 
         canonical_k = keyboard_listener.canonical(k)
         switch_hotkey.press(canonical_k)
         exit_hotkey.press(canonical_k)
-
-        res = callback(canonical_k, is_redirecting)
-        if res is not None: schedule_exit(res)
+        callback(canonical_k, is_redirecting)
     return keyboard_press_handler
 
 def keyboard_release_handler_factory(callback: KeyEventCallback):
     def keyboard_release_handler(k: keyboard.Key | keyboard.KeyCode | None):
-        global is_redirecting, keyboard_listener, main_errno
+        global is_redirecting, keyboard_listener
         assert keyboard_listener is not None
         if k is None: return
 
         canonical_k = keyboard_listener.canonical(k)
         switch_hotkey.release(canonical_k)
         exit_hotkey.release(canonical_k)
-
-        res = callback(canonical_k, is_redirecting)
-        if res is not None: schedule_exit(res)
+        callback(canonical_k, is_redirecting)
     return keyboard_release_handler
 
 def mouse_move_handler_factory(callback: MouseMoveCallback):
     def mouse_move_handler(x: int, y: int):
-        global is_redirecting, main_errno
-        res = callback(x, y, is_redirecting)
-        if res is not None: schedule_exit(res)
+        global is_redirecting
+        callback(x, y, is_redirecting)
     return mouse_move_handler
 
 def mouse_click_handler_factory(callback: MouseClickCallback):
     def mouse_click_handler(x: int, y: int, button: mouse.Button, pressed: bool):
         global is_redirecting, main_errno
-        res = callback(x, y, button, pressed, is_redirecting)
-        if res is not None: schedule_exit(res)
+        callback(x, y, button, pressed, is_redirecting)
     return mouse_click_handler
 
 def mouse_scroll_handler_factory(callback: MouseScrollCallback):
     def mouse_scroll_handler(x: int, y: int, dx: int, dy: int):
         global is_redirecting, main_errno
-        res = callback(x, y, dx, dy, is_redirecting)
-        if res is not None: schedule_exit(res)
+        callback(x, y, dx, dy, is_redirecting)
     return mouse_scroll_handler
 
 def main_loop(
     send_data: SendDataCallback,
+    send_data_async: SendDataAsyncCallback,
     keyboard_press_callback: KeyEventCallback,
     keyboard_release_callback: KeyEventCallback,
     mouse_move_callback: MouseMoveCallback,
@@ -112,7 +108,7 @@ def main_loop(
             if current_clipboard_content is None: return
             if last_received is not None and\
                last_received == current_clipboard_content: return
-            return send_data(SetClipboardEvent(current_clipboard_content).serialize())
+            send_data_async(SetClipboardEvent(current_clipboard_content).serialize())
 
     def after_toggle(is_redirecting: bool):
         nonlocal show_mask, hide_mask,\
