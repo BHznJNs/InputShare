@@ -2,7 +2,7 @@
     <br />
     <img src="./ui/icon.png" alt="输入流转 Logo" width="160" height="160" />
     <h1>输入流转</h1>
-    <a href="README_zh.md">中文介绍</a> | 
+    <a href="README.md">English</a> | 
     <a href="https://bhznjns.github.io/InputShare/">项目主页</a> | 
     <a href="https://github.com/BHznJNs/InputShare/issues">问题反馈</a>
     <br />
@@ -13,7 +13,7 @@ __输入流转__ 能够让你的安卓设备通过有线/无线的方式和电�
 
 ## 特点
 
-- __无感切换__：通过键盘热键或贴边切换快捷地在电脑和安卓设备间切换
+- __无感切换__：通过键盘快捷键或贴边切换快捷地在电脑和安卓设备间切换
 - __有线/无线连接__：支持 USB 有线和局域网无线两种方式连接你的设备
 - __强兼容性__：适用于多种安卓设备，不局限于特定品牌的电脑和安卓设备
 - __剪贴板同步__：让电脑与手机的剪贴板内容无缝同步
