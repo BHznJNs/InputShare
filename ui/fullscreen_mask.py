@@ -1,8 +1,7 @@
 import threading
 import customtkinter as ctk
 
-from typing import Callable
-from utils import screen_size
+from utils import VoidCallable, screen_size
 from utils.i18n import get_i18n
 from utils.logger import LogType, LOGGER
 
@@ -76,9 +75,7 @@ def open_mask_window():
     root.mainloop()
 
 def mask_thread_factory() -> tuple[
-    Callable[[], None],
-    Callable[[], None],
-    Callable[[], None],
+    VoidCallable, VoidCallable, VoidCallable,
 ]:
     def show_mask():
         show_event.set()

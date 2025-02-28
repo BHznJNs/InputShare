@@ -2,7 +2,6 @@ import socket
 import threading
 import pystray
 
-from typing import Callable
 from PIL import Image
 
 from input.controller import schedule_toggle as main_schedule_toggle,\
@@ -10,6 +9,7 @@ from input.controller import schedule_toggle as main_schedule_toggle,\
 from scrcpy_client.clipboard_event import SetClipboardEvent
 from ui import ICON_ICO_PATH
 from ui.settings import open_settings_window
+from utils import VoidCallable
 from utils.config_manager import get_config
 from utils.i18n import get_i18n
 from utils.clipboard import Clipboard
@@ -81,7 +81,7 @@ def create_tray(client_socket: socket.socket):
     LOGGER.write(LogType.Info, "Tray started.")
     tray.run()
 
-def tray_thread_factory(client_socket: socket.socket) -> Callable[[], None]:
+def tray_thread_factory(client_socket: socket.socket) -> VoidCallable:
     def close_tray():
         global tray
         if tray is not None: tray.stop()

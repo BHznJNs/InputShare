@@ -2,10 +2,9 @@ import socket
 import threading
 import time
 from pathlib import Path
-from typing import Callable
 
 from adbutils import AdbDevice
-from utils import DevicePosition, script_abs_path
+from utils import DevicePosition, VoidCallable, script_abs_path
 from utils.logger import LOGGER, LogType
 from utils.network import get_port
 
@@ -53,7 +52,7 @@ def start_server(device: AdbDevice) -> Exception | None:
         LOGGER.write(LogType.Server, "Start reporter server timeout.")
         return e
 
-def server_receiver_factory() -> Callable[[], None]:
+def server_receiver_factory() -> VoidCallable:
     from input.controller import schedule_toggle as main_schedule_toggle
     from input.edge_portal import pause_edge_toggling, resume_edge_toggling,\
                                   call_edge_toggling_callbacks

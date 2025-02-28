@@ -4,11 +4,10 @@ import socket
 import subprocess
 import time
 
-from typing import Callable
 from pathlib import Path
 from adbutils import AdbDevice
 from scrcpy_client.clipboard_event import GetClipboardEventResponse
-from utils import script_abs_path
+from utils import script_abs_path, VoidCallable
 from utils.adb_controller import ADB_BIN_PATH, ADB_SERVER_PORT
 from utils.clipboard import Clipboard
 from utils.logger import LOGGER, LogType
@@ -77,7 +76,7 @@ class ReceivedClipboardText:
         with ReceivedClipboardText.lock:
             ReceivedClipboardText.text = new_text
 
-def server_receiver_factory(client_socket: socket.socket) -> Callable[[], None]:
+def server_receiver_factory(client_socket: socket.socket) -> VoidCallable:
     from utils.config_manager import get_config
 
     def data_recv(client_socket: socket.socket) -> bool:

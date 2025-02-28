@@ -5,6 +5,8 @@ import screeninfo
 from pathlib import Path
 from typing import Any, Callable
 
+VoidCallable = Callable[[], None]
+
 def clamp(v: int, x: int, y: int) -> int:
     return min(max(v, x), y)
 

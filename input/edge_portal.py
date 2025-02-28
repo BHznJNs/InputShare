@@ -4,7 +4,7 @@ import pynput
 
 from typing import Callable
 from server.reporter_receiver import DevicePosition
-from utils import screen_size
+from utils import VoidCallable, screen_size
 from utils.config_manager import get_config
 from utils.logger import LOGGER, LogType
 
@@ -101,7 +101,7 @@ def create_edge_portal():
     LOGGER.write(LogType.Info, "Edge portal closed.")
 
 def edge_portal_thread_factory() -> tuple[
-    Callable[[], None], Callable[[], None], Callable[[], None]
+    VoidCallable, VoidCallable, VoidCallable
 ]:
     def start_edge_portal():
         pause_event.clear()
