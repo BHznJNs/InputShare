@@ -22,6 +22,7 @@ def append_edge_toggling_callback(callback: Callable):
     global edge_toggling_callbacks
     edge_toggling_callbacks.append(callback)
 def call_edge_toggling_callbacks():
+    # this should be called after toggled by android client
     global edge_toggling_callbacks
     for callback in edge_toggling_callbacks: callback()
 
@@ -46,15 +47,18 @@ def resume_edge_toggling():
 def create_edge_portal():
     from input.controller import schedule_toggle as main_schedule_toggle
 
-    def move_mouse_to_edge():
-        nonlocal x, y
+    def return_to_before_toggling():
+        nonlocal cursor_pos_before_toggling
         SIDE_MARGIN = 2
         if pause_event.is_set() or pause_edge_toggling_event.is_set(): return
-        if   is_device_at_right : mouse_controller.position = (screen_width - SIDE_MARGIN, y)
-        elif is_device_at_left  : mouse_controller.position = (SIDE_MARGIN, y)
-        elif is_device_at_top   : mouse_controller.position = (x, SIDE_MARGIN)
-        elif is_device_at_bottom: mouse_controller.position = (x, screen_height - SIDE_MARGIN)
-    append_edge_toggling_callback(move_mouse_to_edge)
+        if cursor_pos_before_toggling == None: return
+        temp_x, temp_y = cursor_pos_before_toggling
+        if   is_device_at_right : mouse_controller.position = (temp_x - SIDE_MARGIN, temp_y)
+        elif is_device_at_left  : mouse_controller.position = (SIDE_MARGIN, temp_y)
+        elif is_device_at_top   : mouse_controller.position = (temp_x, SIDE_MARGIN)
+        elif is_device_at_bottom: mouse_controller.position = (temp_x, temp_y - SIDE_MARGIN)
+    append_edge_toggling_callback(return_to_before_toggling)
+    cursor_pos_before_toggling = None
 
     while not close_event.is_set():
         temp_pos = mouse_controller.position
@@ -79,6 +83,7 @@ def create_edge_portal():
                (is_device_at_left   and is_at_left_side  and is_y_at_target_range) or\
                (is_device_at_top    and is_at_top_side)    or\
                (is_device_at_bottom and is_at_bottom_side):
+                cursor_pos_before_toggling = temp_pos
                 main_schedule_toggle(True)
         else:
             if is_at_left_side or is_at_right_side or is_at_top_side or is_at_bottom_side:
