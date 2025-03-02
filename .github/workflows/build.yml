@@ -48,11 +48,19 @@ jobs:
       - name: Archive Windows executable
         run: Compress-Archive -Path dist/main/ -DestinationPath InputShare-win-x64.zip
         shell: pwsh
+      
+      - name: Compile .ISS to .EXE Installer
+        uses: Minionguyjpro/Inno-Setup-Action@v1.2.2
+        with:
+          path: setup.iss
+          options: /O+
 
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
-          files: InputShare-win-x64.zip
+          files: |
+            InputShare-win-x64.zip
+            InputShare_setup.exe
           token: ${{ secrets.GITHUB_TOKEN }}
 
   # build-linux:
