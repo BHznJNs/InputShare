@@ -1,8 +1,12 @@
+[Languages]
+Name: "en"; MessagesFile: "compiler:Default.isl"
+Name: "zh_CN"; MessagesFile: ".\utils\ChineseSimplified.isl"
+
 [Setup]
-AppName=InputShare
+AppName="InputShare"
 AppVersion=0.7.6
 DefaultDirName={userappdata}\InputShare
-DefaultGroupName=InputShare
+DefaultGroupName="InputShare"
 OutputDir=.\
 OutputBaseFilename=InputShare_setup
 Compression=lzma
