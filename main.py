@@ -4,11 +4,11 @@ from typing import Callable
 
 from adbutils import AdbInstallError
 from multiprocessing import freeze_support
-from server import deploy_reporter_server, deploy_scrcpy_server, ADBConnectionError, scrcpy_receiver, reporter_receiver
+from server import deploy_reporter_server, deploy_scrcpy_server, scrcpy_receiver, reporter_receiver
 from input.callbacks import callback_context_wrapper
 from ui.connecting_window import open_connecting_window
 from ui.tray import tray_thread_factory
-from utils.adb_controller import append_adb_device, get_adb_client, start_adb_server
+from utils.adb_controller import ADBWiredConnectionError, append_adb_device, get_adb_client, start_adb_server
 from utils.config_manager import get_config
 from utils.i18n import get_i18n
 from utils.logger import LogType, LOGGER
@@ -19,7 +19,7 @@ def close_notification_resolver(errno: Exception | None):
     i18n = get_i18n()
     match errno:
         case None: pass
-        case ADBConnectionError():
+        case ADBWiredConnectionError():
             close_notification = Notification(
                 i18n(["ConnectionError", "连接错误"]),
                 i18n(["Wired connection failed, please check if the device is connected correctly.", "有线连接失败，请检查是否正确连接设备。"]))
@@ -58,7 +58,7 @@ if __name__ == "__main__":
         device_list = get_adb_client().device_list()
         if len(device_list) == 0:
             # selected wired connection
-            close_notification_resolver(ADBConnectionError())
+            close_notification_resolver(ADBWiredConnectionError())
             sys.exit(1)
         append_adb_device(device_list[0])
 

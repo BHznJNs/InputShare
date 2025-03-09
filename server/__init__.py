@@ -4,8 +4,6 @@ from server import scrcpy_receiver, reporter_receiver
 from utils.adb_controller import get_adb_device
 from utils.logger import LOGGER, LogType
 
-class ADBConnectionError(Exception): pass
-
 def deploy_scrcpy_server() -> tuple[subprocess.Popen, socket.socket] | Exception:
     primary_device = get_adb_device()
     if isinstance(primary_device, Exception): return primary_device

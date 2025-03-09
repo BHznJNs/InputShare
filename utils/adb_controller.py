@@ -17,7 +17,7 @@ os.environ["ADBUTILS_ADB_PATH"] = str(adb_bin_path)
 ADB_BIN_PATH = str(adb_bin_path)
 ADB_SERVER_PORT = 5038
 
-class ADBConnectionError(Exception): pass
+class ADBWiredConnectionError(Exception): pass
 
 def get_adb_client() -> adbutils.AdbClient:
     global __adb_client_instance
@@ -28,7 +28,7 @@ def get_adb_client() -> adbutils.AdbClient:
 
 def get_adb_device(device_index: int = 0) -> adbutils.AdbDevice | Exception:
     if len(__adb_device_list) == 0:
-        return ADBConnectionError()
+        return ADBWiredConnectionError()
     target_device = __adb_device_list[device_index]
     LOGGER.write(LogType.Adb, "Selected device: " + str(target_device))
     return target_device
@@ -80,6 +80,7 @@ def try_connect_device(addr: str, timeout: float=3.0) -> adbutils.AdbClient | No
                 append_adb_device(device)
                 break
         LOGGER.write(LogType.Adb, output)
+        if output.startswith("failed"): return None
     except adbutils.AdbTimeout as e:
         client.disconnect(addr)
         LOGGER.write(LogType.Error, "Connect timeout: " + str(e))
