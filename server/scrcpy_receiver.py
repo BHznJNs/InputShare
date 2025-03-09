@@ -8,7 +8,7 @@ from pathlib import Path
 from adbutils import AdbDevice
 from scrcpy_client.clipboard_event import GetClipboardEventResponse
 from utils import script_abs_path, VoidCallable
-from utils.adb_controller import ADB_BIN_PATH, ADB_SERVER_PORT
+from utils.adb_controller import ADB_BIN_PATH, ADB_SERVER_PORT, get_adb_device
 from utils.clipboard import Clipboard
 from utils.logger import LOGGER, LogType
 from utils.network import get_port
@@ -25,13 +25,15 @@ def push_server(device: AdbDevice):
     device.sync.push(str(server_binary_path), target_path)
 
 def server_process_factory() -> subprocess.Popen | Exception:
-    command = "CLASSPATH=/data/local/tmp/scrcpy-server-manual.jar \
+    INSTALL_SCRCPY_SERVER_COMMAND = "CLASSPATH=/data/local/tmp/scrcpy-server-manual.jar \
 app_process / com.genymobile.scrcpy.Server 2.7 \
 tunnel_forward=true video=false audio=false control=true \
 cleanup=false raw_stream=true send_dummy_byte=true max_size=4096"
+    primary_device = get_adb_device()
+    if isinstance(primary_device, Exception): return primary_device
     try:
         process = subprocess.Popen(
-            f"{ADB_BIN_PATH} -P {ADB_SERVER_PORT} shell {command}",
+            f"{ADB_BIN_PATH} -s {primary_device.serial} -P {ADB_SERVER_PORT} shell {INSTALL_SCRCPY_SERVER_COMMAND}",
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,

@@ -1,18 +1,15 @@
 import socket
 import subprocess
 from server import scrcpy_receiver, reporter_receiver
-from utils.adb_controller import get_adb_client
+from utils.adb_controller import get_adb_device
 from utils.logger import LOGGER, LogType
 
 class ADBConnectionError(Exception): pass
 
 def deploy_scrcpy_server() -> tuple[subprocess.Popen, socket.socket] | Exception:
-    adb_client = get_adb_client()
-    device_list = adb_client.device_list()
-    if len(device_list) == 0:
-        return ADBConnectionError()
+    primary_device = get_adb_device()
+    if isinstance(primary_device, Exception): return primary_device
 
-    primary_device = device_list[0]
     scrcpy_receiver.push_server(primary_device)
     primary_device.forward(f"tcp:{scrcpy_receiver.SERVER_PORT}", "localabstract:scrcpy")
 
@@ -27,12 +24,8 @@ def deploy_scrcpy_server() -> tuple[subprocess.Popen, socket.socket] | Exception
     return server_process, client_socket
 
 def deploy_reporter_server() -> Exception | None:
-    adb_client = get_adb_client()
-    device_list = adb_client.device_list()
-    if len(device_list) == 0:
-        return ADBConnectionError()
-
-    primary_device = device_list[0]
+    primary_device = get_adb_device()
+    if isinstance(primary_device, Exception): return primary_device
     primary_device.forward(f"tcp:{reporter_receiver.SERVER_PORT}", f"tcp:{reporter_receiver.SERVER_PORT}")
 
     package_path    = primary_device.shell("pm path " + reporter_receiver.PACKAGE_NAME)

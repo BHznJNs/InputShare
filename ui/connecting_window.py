@@ -12,6 +12,7 @@ from utils.network import get_ip_from_ip_port, is_valid_ip, is_valid_ip_port, sc
 from utils.i18n import get_i18n
 
 i18n = get_i18n()
+is_wired_connection = False
 
 def mount_pairing_view(tabview: ctk.CTkTabview, connecting_addr_entry: ctk.CTkEntry):
     def pair_callback():
@@ -184,6 +185,8 @@ def mount_connecting_view(tabview: ctk.CTkTabview) -> ctk.CTkEntry:
         connecting_window.after(func=process_callback, ms=100)
 
     def need_not_connection_callback():
+        global is_wired_connection
+        is_wired_connection = True
         connecting_window.destroy()
 
     normal_font = i18n([ctk.CTkFont(family="Arial", size=16), ctk.CTkFont(family="Microsoft YaHei", size=16)])
@@ -232,8 +235,10 @@ def mount_connecting_view(tabview: ctk.CTkTabview) -> ctk.CTkEntry:
     # expose the addr_entry to mainwindow
     return addr_entry
 
-def open_connecting_window():
-    global connecting_window
+def open_connecting_window() -> bool:
+    global connecting_window, is_wired_connection
+    is_wired_connection = False
+
     def delete_window_callback():
         connecting_window.destroy()
         get_adb_client().server_kill()
@@ -259,3 +264,4 @@ def open_connecting_window():
 
     connecting_window.protocol("WM_DELETE_WINDOW", delete_window_callback)
     connecting_window.mainloop()
+    return is_wired_connection

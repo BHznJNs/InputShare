@@ -12,9 +12,12 @@ script_path = script_abs_path(__file__).parent
 adb_relative_path = "adb-bin/adb.exe"
 adb_bin_path = Path.joinpath(script_path, adb_relative_path)
 __adb_client_instance: adbutils.AdbClient | None = None
+__adb_device_list: list[adbutils.AdbDevice] = []
 os.environ["ADBUTILS_ADB_PATH"] = str(adb_bin_path)
 ADB_BIN_PATH = str(adb_bin_path)
 ADB_SERVER_PORT = 5038
+
+class ADBConnectionError(Exception): pass
 
 def get_adb_client() -> adbutils.AdbClient:
     global __adb_client_instance
@@ -22,6 +25,16 @@ def get_adb_client() -> adbutils.AdbClient:
         # use non-default port to prevent conflict with Android Studio
         __adb_client_instance = adbutils.AdbClient(port=ADB_SERVER_PORT)
     return __adb_client_instance
+
+def get_adb_device(device_index: int = 0) -> adbutils.AdbDevice | Exception:
+    if len(__adb_device_list) == 0:
+        return ADBConnectionError()
+    target_device = __adb_device_list[device_index]
+    LOGGER.write(LogType.Adb, "Selected device: " + str(target_device))
+    return target_device
+
+def append_adb_device(device: adbutils.AdbDevice):
+    __adb_device_list.append(device)
 
 def start_adb_server():
     command = f"{ADB_BIN_PATH} -P {ADB_SERVER_PORT} start-server"
@@ -62,6 +75,10 @@ def try_connect_device(addr: str, timeout: float=3.0) -> adbutils.AdbClient | No
     try:
         output = client.connect(addr, timeout)
         assert len(client.device_list()) > 0
+        for device in client.iter_device():
+            if device.serial == addr:
+                append_adb_device(device)
+                break
         LOGGER.write(LogType.Adb, output)
     except adbutils.AdbTimeout as e:
         client.disconnect(addr)

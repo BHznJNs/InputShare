@@ -8,7 +8,7 @@ from server import deploy_reporter_server, deploy_scrcpy_server, ADBConnectionEr
 from input.callbacks import callback_context_wrapper
 from ui.connecting_window import open_connecting_window
 from ui.tray import tray_thread_factory
-from utils.adb_controller import get_adb_client, start_adb_server
+from utils.adb_controller import append_adb_device, get_adb_client, start_adb_server
 from utils.config_manager import get_config
 from utils.i18n import get_i18n
 from utils.logger import LogType, LOGGER
@@ -53,7 +53,14 @@ if __name__ == "__main__":
     freeze_support()
 
     start_adb_server()
-    open_connecting_window()
+    is_wired_connection = open_connecting_window()
+    if is_wired_connection:
+        device_list = get_adb_client().device_list()
+        if len(device_list) == 0:
+            # selected wired connection
+            close_notification_resolver(ADBConnectionError())
+            sys.exit(1)
+        append_adb_device(device_list[0])
 
     res = deploy_scrcpy_server()
     if isinstance(res, Exception):
