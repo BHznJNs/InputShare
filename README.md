@@ -55,3 +55,9 @@ For wireless connection:
 - [FAQs](./docs/faqs_en.md)
 - [Limitations](./docs/limitations_en.md)
 - [Development](./docs/development_en.md)
+
+## Thanks
+
+InputShare is based on [scrcpy](https://github.com/Genymobile/scrcpy) project and provided a GUI with the build-in ADB invocation.
+
+Thanks to [@yxyh357](https://github.com/yxyh357), who improved the performance of InputShare under high polling-rate.

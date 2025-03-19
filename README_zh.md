@@ -54,3 +54,9 @@ __对于无线连接：__
 - [常见问题](./docs/faqs_zh.md)
 - [已知缺陷](./docs/limitations_zh.md)
 - [开发](./docs/development_zh.md)
+
+## 致谢
+
+InputShare 在 [scrcpy](https://github.com/Genymobile/scrcpy) 项目的基础上加入了图形界面并能够自动调用 ADB。
+
+感谢 [@yxyh357](https://github.com/yxyh357)，他提升了 InputShare 在高鼠标回报率下的性能。
