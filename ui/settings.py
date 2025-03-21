@@ -116,6 +116,16 @@ def mount_elements(root: ctk.CTk):
             font=normal_font,
             text=i18n(["Right side", "电脑右侧"]),
             variable=device_position_var, value=DevicePosition.RIGHT)
+        device_position_top_radio = ctk.CTkRadioButton(
+            master=edge_toggling_frame,
+            font=normal_font,
+            text=i18n(["Top side", "电脑上方"]),
+            variable=device_position_var, value=DevicePosition.TOP)
+        device_position_bottom_radio = ctk.CTkRadioButton(
+            master=edge_toggling_frame,
+            font=normal_font,
+            text=i18n(["Bottom side", "电脑下方"]),
+            variable=device_position_var, value=DevicePosition.BOTTOM)
         
         validate_entry = lambda text: len(text) == 0 or text.isdigit()
         vcmd = (edge_toggling_frame.register(validate_entry), "%P")
@@ -143,10 +153,12 @@ def mount_elements(root: ctk.CTk):
         device_position_label.grid(row=2, column=0, padx=(20, 0), pady=(6, 0), sticky="w")
         device_position_left_radio.grid(row=3, padx=20, pady=4, sticky="w")
         device_position_right_radio.grid(row=4, padx=20, pady=4, sticky="w")
+        device_position_top_radio.grid(row=5, padx=20, pady=4, sticky="w")
+        device_position_bottom_radio.grid(row=6, padx=20, pady=4, sticky="w")
 
-        trigger_margin_label.grid(row=5, column=0, padx=(20, 0), pady=(6, 0), sticky="w")
-        trigger_margin_entry.grid(row=5, column=1, pady=(6, 0), sticky="w")
-        trigger_margin_info_label.grid(row=6, column=0, columnspan=2, padx=20, sticky="w")
+        trigger_margin_label.grid(row=7, column=0, padx=(20, 0), pady=(6, 0), sticky="w")
+        trigger_margin_entry.grid(row=7, column=1, pady=(6, 0), sticky="w")
+        trigger_margin_info_label.grid(row=8, column=0, columnspan=2, padx=20, sticky="w")
 
     def keep_wakeup_section():
         nonlocal settings_scroll_frame, smaller_font, normal_font, larger_font, keep_wakeup_var

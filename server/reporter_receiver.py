@@ -9,7 +9,7 @@ from utils.logger import LOGGER, LogType
 from utils.network import get_port
 
 PACKAGE_NAME = "com.bhznjns.inputsharereporter"
-PACKAGE_VERSION = "1.0.2"
+PACKAGE_VERSION = "1.1.0"
 ENTRY_ACTIVITY_NAME = ".MainActivity"
 SERVER_EXECUTABLE_NAME = "reporter.apk"
 SERVER_PORT = get_port("reporter_port", 61625)
@@ -42,9 +42,9 @@ def start_server(device: AdbDevice) -> Exception | None:
     try:
         is_server_running = device.shell(f"pidof {PACKAGE_NAME}")
         assert type(is_server_running) == str
-        if len(is_server_running) > 0: return
+        if len(is_server_running) > 0: LOGGER.write(LogType.Server, "Reporter server is already running.")
+        else: LOGGER.write(LogType.Server, "Reporter server is not running, try to start...")
 
-        LOGGER.write(LogType.Server, "Reporter server is not running, try to start...")
         config_position = get_config().device_position
         param_direction = DevicePosition.parse(config_position)
         device.shell(f"am start -n {PACKAGE_NAME}/{PACKAGE_NAME + ENTRY_ACTIVITY_NAME} -e \"direction\" \"{param_direction}\"")
