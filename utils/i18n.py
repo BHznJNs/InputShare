@@ -2,14 +2,14 @@ from typing import TypeVar
 from utils import CHINESE_LANGUAGE, ENGLISH_LANGUAGE
 
 class I18n:
-    language_index: int = 0
     Candidate = TypeVar("Candidate")
 
     def __init__(self) -> None:
         from utils.config_manager import get_config
         user_language = get_config().language
-        if user_language == ENGLISH_LANGUAGE: self.language_index = 0
-        if user_language == CHINESE_LANGUAGE: self.language_index = 1
+        if   user_language == ENGLISH_LANGUAGE: self.language_index = 0
+        elif user_language == CHINESE_LANGUAGE: self.language_index = 1
+        else: self.language_index = 0
 
     def __call__(self, candidates: list[Candidate]) -> Candidate:
         if len(candidates) == 0:

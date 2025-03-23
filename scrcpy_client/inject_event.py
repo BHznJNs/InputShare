@@ -6,8 +6,6 @@ from scrcpy_client.android_def import POINTER_ID_MOUSE, AKeyCode, AKeyEventActio
 
 class InjectKeyCode:
     msg_type: ControlMsgType = ControlMsgType.MSG_TYPE_INJECT_KEYCODE
-    key_code: AKeyCode
-    action: AKeyEventAction
     repeat: int = 0
     metastate: int = 0
 
@@ -28,12 +26,7 @@ class InjectKeyCode:
 
 class InjectTouchEvent:
     msg_type: ControlMsgType = ControlMsgType.MSG_TYPE_INJECT_TOUCH_EVENT
-    action: AMotionEventAction
-    action_button: AMotionEventButtons
-    buttons: AMotionEventButtons
     pointer_id = POINTER_ID_MOUSE
-    position: ScreenPosition
-    pressure: int
 
     def __init__(
         self,
@@ -65,6 +58,7 @@ class InjectTouchEvent:
             self.buttons, # 32
         )
         return buf
+
 def TouchMoveEvent(position: ScreenPosition) -> InjectTouchEvent:
     return InjectTouchEvent(
         position,

@@ -25,10 +25,6 @@ class ConfigFile:
     language: str = current_language_code() or ENGLISH_LANGUAGE
 
 class ConfigManager:
-    path: str
-    config: ConfigFile
-    is_first_use: bool
-
     def __init__(self):
         file_path = self.path = ConfigManager.storage_path()
         is_exists = self.is_first_use = os.path.exists(file_path)

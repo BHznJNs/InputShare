@@ -26,7 +26,6 @@ class HIDKeyboardInputEvent:
     msg_type: ControlMsgType = ControlMsgType.MSG_TYPE_UHID_INPUT # 8
     id_: int = HID_ID_KEYBOARD # 16
     size: int = HID_KEYBOARD_INPUT_SIZE # 16
-    data: bytes
 
     def __init__(self, data: list[int]) -> None:
         self.data = bytes(data)
@@ -85,7 +84,6 @@ class HIDMouseInputEvent:
     msg_type: ControlMsgType = ControlMsgType.MSG_TYPE_UHID_INPUT # 8
     id_: int = HID_ID_MOUSE # 16
     size: int = HID_MOUSE_INPUT_SIZE # 16
-    data: bytes
 
     def __init__(self, data: list[int]) -> None:
         self.data = bytes(data)

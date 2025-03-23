@@ -18,7 +18,8 @@ class HID_MouseButton(IntEnum):
     MOUSE_BUTTON_X2 = SDL_BUTTON(SDL_BUTTON_X2)
 
 class MouseButtonStateStore:
-    mouse_button: int = HID_MouseButton.MOUSE_BUTTON_NONE.value
+    def __init__(self):
+        self.mouse_button = HID_MouseButton.MOUSE_BUTTON_NONE.value
     def mouse_down(self, button: HID_MouseButton):
         self.mouse_button |= button.value
     def mouse_up(self, button: HID_MouseButton):
@@ -128,7 +129,8 @@ class HIDKeymod(IntEnum):
     HID_MOD_CONTROL = HID_MOD_LEFT_CONTROL | HID_MOD_RIGHT_CONTROL
 
 class KeymodStateStore:
-    key: int = HIDKeymod.HID_MOD_NONE.value
+    def __init__(self):
+        self.key = HIDKeymod.HID_MOD_NONE.value
     def keydown(self, key: HIDKeymod):
         self.key |= key.value
     def keyup(self, key: HIDKeymod):
