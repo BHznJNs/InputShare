@@ -68,8 +68,8 @@ def open_mask_window():
         text=i18n(["Use <Ctrl>+<Alt>+s to toggle", "使用 <Ctrl>+<Alt>+s 切换控制"]),
         font=larger_font,
     )
-    label1.pack(padx=4, pady=4)
-    label2.pack(padx=4, pady=4)
+    label1.pack(padx=8, pady=4, anchor="w")
+    label2.pack(padx=8, pady=4, anchor="w")
 
     root.after(0, check_event, root, label_toplevel)
     root.mainloop()

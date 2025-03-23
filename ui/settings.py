@@ -142,7 +142,8 @@ def mount_elements(root: ctk.CTk):
         trigger_margin_info_label = ctk.CTkLabel(
             master=edge_toggling_frame,
             font=smaller_font,
-            text=i18n(["Prevents triggers when the mouse reaches the corners. Larger values reduce accidents.",
+            justify="left",
+            text=i18n(["Prevents triggers when the mouse reaches the corners.\nLarger values reduce accidents.",
                        "避免鼠标触及屏幕角落时触发切换。更大的值可以避免误操作。"]))
 
         edge_toggling_frame.pack(fill="x", pady=(20, 0))

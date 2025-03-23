@@ -120,7 +120,7 @@ def mount_connecting_view(tabview: ctk.CTkTabview) -> ctk.CTkEntry:
                 return
         LOGGER.write(LogType.Error, "Scanned ports: " + str(target_ports))
         process_data_queue.put(
-            ProcessError(i18n(["Port scanning failed, please check the IP address.", "扫描端口失败，请检查 IP 地址是否正确。"])))
+            ProcessError(i18n(["Port scanning failed,\nplease check the IP address.", "扫描端口失败，请检查 IP 地址是否正确。"])))
 
     def direct_connect(addr: str):
         nonlocal process_data_queue
@@ -203,7 +203,8 @@ def mount_connecting_view(tabview: ctk.CTkTabview) -> ctk.CTkEntry:
         master=frame,
         text="",
         font=larger_font,
-        text_color="red")
+        text_color="red",
+        justify="left")
     auto_scan_port = ctk.CTkCheckBox(
         master=frame, font=normal_font,
         text=i18n(["Auto detect port", "自动检测端口"]))
@@ -215,7 +216,7 @@ def mount_connecting_view(tabview: ctk.CTkTabview) -> ctk.CTkEntry:
     prompt_label.grid(row=0, column=0, padx=20, pady=(10, 4), sticky="w")
     addr_entry.grid(row=1, column=0, padx=20, sticky="we")
     auto_scan_port.grid(row=2, column=0, padx=20, pady=(10, 4), sticky="w")
-    error_label.grid(row=3, column=0, padx=20, pady=(10, 4), sticky="w")
+    error_label.grid(row=3, column=0, padx=20, pady=(10, 4), sticky="w",)
     waiting_label.grid(row=4, column=0, padx=20, pady=2, sticky="w")
 
     button_frame = ctk.CTkFrame(master=frame)
