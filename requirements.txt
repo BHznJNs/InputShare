@@ -3,5 +3,6 @@ customtkinter==5.2.2
 pynput==1.7.6
 notify_py==0.3.43
 pyperclip==1.9.0
+PyQWebWindow==0.2.6
 pystray==0.19.5
 screeninfo==0.8.1

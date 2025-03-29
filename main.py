@@ -6,7 +6,7 @@ from adbutils import AdbInstallError
 from multiprocessing import freeze_support
 from server import deploy_reporter_server, deploy_scrcpy_server, scrcpy_receiver, reporter_receiver
 from input.callbacks import callback_context_wrapper
-from ui.connecting_window import open_connecting_window
+from ui.connecting_window import open_connecting_window, open_connecting_window_
 from ui.tray import tray_thread_factory
 from utils.adb_controller import ADBWiredConnectionError, append_adb_device, get_adb_client, start_adb_server
 from utils.config_manager import get_config
@@ -53,7 +53,7 @@ if __name__ == "__main__":
     freeze_support()
 
     start_adb_server()
-    is_wired_connection = open_connecting_window()
+    is_wired_connection = open_connecting_window_()
     if is_wired_connection:
         device_list = get_adb_client().device_list()
         if len(device_list) == 0:

@@ -1,0 +1,6 @@
+body {
+    --text-font:
+    /* en */ -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Ubuntu,Helvetica Neue,Helvetica,Arial,
+    /* zh */ PingFang SC,Hiragino Sans GB,Microsoft YaHei UI,Microsoft YaHei,Source Han Sans CN,sans-serif;
+    margin: 0;
+}

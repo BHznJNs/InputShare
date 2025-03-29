@@ -2,11 +2,11 @@ import sys
 import threading
 import customtkinter as ctk
 
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from queue import Queue
-from ui import ICON_ICO_PATH
+from ui import ICON_ICO_PATH, ICON_PNG_PATH
 from utils.adb_controller import get_adb_client, try_connect_device, try_pairing
-from utils.config_manager import get_config, get_config_manager
+from utils.config_manager import ConfigFile, get_config, get_config_manager
 from utils.logger import LOGGER, LogType, unreachable
 from utils.network import get_ip_from_ip_port, is_valid_ip, is_valid_ip_port, scan_port
 from utils.i18n import get_i18n
@@ -265,4 +265,28 @@ def open_connecting_window() -> bool:
 
     connecting_window.protocol("WM_DELETE_WINDOW", delete_window_callback)
     connecting_window.mainloop()
+    return is_wired_connection
+
+from PyQWebWindow import QAppManager, QWebWindow
+def open_connecting_window_() -> bool:
+    is_wired_connection = False
+    def set_is_wired_connection():
+        nonlocal is_wired_connection
+        is_wired_connection = True
+    def is_first_use() -> bool:
+        return get_config_manager().is_first_use
+    def config() -> dict:
+        return asdict(get_config())
+
+    app = QAppManager(debugging=True)
+    window = QWebWindow(
+        title=i18n(["InputShare Connection", "输入流转 —— 连接"]),
+        icon=str(ICON_ICO_PATH.absolute()))
+    window.register_bindings([
+        set_is_wired_connection,
+        is_first_use, config,
+    ])
+    window.load_file("./pages/connect.html")
+    window.start()
+    app.exec()
     return is_wired_connection
