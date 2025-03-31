@@ -27,8 +27,8 @@ class ConfigFile:
 class ConfigManager:
     def __init__(self):
         file_path = self.path = ConfigManager.storage_path()
-        is_exists = self.is_first_use = os.path.exists(file_path)
-        if not is_exists: ConfigManager.create_default_config(file_path)
+        self.is_first_use = not os.path.exists(file_path)
+        if self.is_first_use: ConfigManager.create_default_config(file_path)
         self.config = ConfigManager.read_config(file_path)
         atexit.register(self.save)
 
