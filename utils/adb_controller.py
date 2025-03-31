@@ -9,8 +9,9 @@ from utils import script_abs_path
 from utils.logger import LogType, LOGGER
 
 script_path = script_abs_path(__file__).parent
-adb_relative_path = "adb-bin/adb.exe"
+adb_relative_path = "assets/adb-bin/adb.exe"
 adb_bin_path = Path.joinpath(script_path, adb_relative_path)
+
 __adb_client_instance: adbutils.AdbClient | None = None
 __adb_device_list: list[adbutils.AdbDevice] = []
 os.environ["ADBUTILS_ADB_PATH"] = str(adb_bin_path)

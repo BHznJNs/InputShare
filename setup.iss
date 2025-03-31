@@ -1,6 +1,6 @@
 [Languages]
 Name: "en"; MessagesFile: "compiler:Default.isl"
-Name: "zh_CN"; MessagesFile: ".\utils\ChineseSimplified.isl"
+Name: "zh_CN"; MessagesFile: ".\assets\ChineseSimplified.isl"
 
 [Setup]
 AppName="InputShare"
