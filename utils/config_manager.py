@@ -3,7 +3,7 @@ import sys, os
 import json
 
 from dataclasses import asdict, dataclass, fields
-from typing import Any
+from typing import Any, Literal
 from utils import DevicePosition, ENGLISH_LANGUAGE,\
                   current_language_code, script_abs_path
 
@@ -17,7 +17,7 @@ class ConfigFile:
     share_keyboard_only: bool = False
 
     # settings
-    theme: str = "system"
+    theme: Literal["system", "dark", "light"] = "system"
     mouse_speed: float = 2
     edge_toggling: bool = False
     device_position: str = DevicePosition.RIGHT

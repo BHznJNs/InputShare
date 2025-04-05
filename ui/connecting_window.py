@@ -17,7 +17,7 @@ def open_connecting_window() -> bool:
     def set_is_wired_connection():
         nonlocal is_wired_connection
         is_wired_connection = True
-    
+
     def is_first_use() -> bool:
         return get_config_manager().is_first_use
 
@@ -54,7 +54,7 @@ def open_connecting_window() -> bool:
         nonlocal window
         window.close()
 
-    app = QAppManager()
+    app = QAppManager(theme=get_config().theme)
     window = QWebWindow(
         title=i18n(["InputShare Connection", "输入流转 —— 连接"]),
         icon=str(ICON_ICO_PATH.absolute()),

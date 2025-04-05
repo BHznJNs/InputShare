@@ -51,7 +51,8 @@ class PairingTab extends LitElement {
   `
 
   static properties = {
-    allowPair: {type: Boolean, state: true}
+    allowPair: {type: Boolean, state: true},
+    isPairing: {type: Boolean, state: true},
   }
 
   constructor() {
@@ -67,6 +68,7 @@ class PairingTab extends LitElement {
     }
     this.inputContainer = ref()
     this.allowPair = false
+    this.isPairing = false
   }
 
   checkForm(_) {
@@ -88,6 +90,7 @@ class PairingTab extends LitElement {
   }
 
   async pair() {
+    this.isPairing = true
     this.tooltips.pair.value.hide()
     if (!this.checkForm()) return
     const ip = ipaddr.parse(this.inputs.ip.value.value).toString()
@@ -100,6 +103,7 @@ class PairingTab extends LitElement {
       return
     }
     this.tooltips.pair.value.show()
+    this.isPairing = false
   }
 
   firstUpdated() {
@@ -168,6 +172,7 @@ class PairingTab extends LitElement {
           >
             <sl-button variant="primary"
               .disabled=${!this.allowPair}
+              .loading=${this.isPairing}
               @click=${this.pair}
             >${i18n("Pair", "配对")}</sl-button>
           </sl-tooltip>
@@ -221,6 +226,7 @@ class ConnectTab extends LitElement {
 
   static properties = {
     allowConnect: {type: Boolean, state: true},
+    isConnecting: {type: Boolean, state: true},
     autoDetectPort: {type: Boolean, state: true},
   }
 
@@ -235,6 +241,7 @@ class ConnectTab extends LitElement {
       connect: ref(),
     }
     this.allowConnect = false
+    this.isConnecting = false
     this.autoDetectPort = config.scan_port
     this.autoDetectPortCheckbox = ref()
   }
@@ -261,6 +268,7 @@ class ConnectTab extends LitElement {
   }
 
   async connect() {
+    this.isConnecting = true
     this.tooltips.connect.value.hide()
     if (!this.checkForm()) return
   
@@ -268,10 +276,8 @@ class ConnectTab extends LitElement {
     const port = this.inputs.port.value.value
     const addr = this.autoDetectPort ? ip : `${ip}:${port}`
     const result = await globalThis.backend.try_connect(addr, this.autoDetectPort)
-    if (result) {
-      this.dispatchEvent(new CustomEvent("connect-succeeded"))
-      return
-    }
+    if (result) this.dispatchEvent(new CustomEvent("connect-succeeded"))
+    this.isConnecting = false
   }
 
   render() {
@@ -326,6 +332,7 @@ class ConnectTab extends LitElement {
           >
             <sl-button variant="primary"
               .disabled=${!this.allowConnect}
+              .loading=${this.isConnecting}
               @click=${this.connect}
             >${i18n("Connect", "连接")}</sl-button>
           </sl-tooltip>

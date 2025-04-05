@@ -7,6 +7,7 @@ from PyQWebWindow import QAppManager, QWebWindow
 from ui import ICON_ICO_PATH, SETTINGS_PAGE_PATH
 from utils.config_manager import ConfigManager, get_config, get_config_manager
 from utils.i18n import get_i18n
+from utils.logger import LOGGER, LogType
 
 def settings_window_runner(result_queue: multiprocessing.Queue):
     i18n = get_i18n()
@@ -24,7 +25,7 @@ def settings_window_runner(result_queue: multiprocessing.Queue):
         nonlocal window
         window.close()
 
-    app = QAppManager()
+    app = QAppManager(theme=get_config().theme)
     window = QWebWindow(
         title=i18n(["InputShare Settings", "输入流转 —— 设置"]),
         icon=str(ICON_ICO_PATH.absolute()),
@@ -55,7 +56,8 @@ def open_settings_window() -> threading.Thread:
         if result is None: return
         new_config = ConfigManager.parse_config_json(result)
         get_config_manager().use_new_config(new_config)
+        LOGGER.write(LogType.Info, "config saved: " + str(new_config))
 
-    background_thread = threading.Thread(target=inner)
+    background_thread = threading.Thread(target=inner, daemon=True)
     background_thread.start()
     return background_thread

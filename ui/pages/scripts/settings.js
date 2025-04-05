@@ -72,7 +72,7 @@ class GeneralTab extends LitElement {
     .frame {
       display: flex;
       flex-direction: column;
-      row-gap: .6rem;
+      row-gap: .75rem;
       margin: .5rem 1rem;
     }
     sl-range {
@@ -106,7 +106,7 @@ class GeneralTab extends LitElement {
 
   render() {
     const theme = html`
-      <setting-item>
+      <setting-item style="z-index: 100">
         <div slot="title">${i18n("Theme: ", "界面主题：")}</div>
         <sl-select slot="control"
           value="${config.theme}"
@@ -164,7 +164,6 @@ class GeneralTab extends LitElement {
     `
     return html`
       <div class="frame">
-        <range-slider aria-label="Choose a value"></range-slider>
         ${theme}
         ${mouseSpeed}
         ${keepScreenOn}
@@ -222,7 +221,7 @@ class EdgeTogglingTab extends LitElement {
       </setting-item>
     `
     const position = html`
-      <setting-item>
+      <setting-item style="z-index: 100">
         <div slot="title">${i18n("Device Position: ", "设备位置：")}</div>
         <sl-select slot="control"
           value="${config.device_position}"
@@ -262,6 +261,64 @@ class EdgeTogglingTab extends LitElement {
   }
 }
 
+class AboutTab extends LitElement {
+  static styles = css`
+    .frame {
+      display: flex;
+      flex-direction: column;
+      row-gap: .75rem;
+      margin: .5rem 1rem;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      column-gap: 1rem;
+    }
+    header img {
+      width: 72px;
+    }
+    header > div {
+      display: flex;
+      flex-direction: column;
+      align-self: center;
+    }
+    header h1,
+    header p {
+      margin: 0;
+    }
+    header p {
+      display: flex;
+    }
+    p sl-button[variant="text"]::part(base) {
+      display: flex;
+      align-items: center;
+      line-height: unset;
+      min-height: unset;
+      border: none;
+    }
+    p sl-button[variant="text"]::part(label) {
+      padding: 0 .5rem;
+    }
+  `
+  render() {
+    return html`
+      <div class="frame">
+        <header>
+          <img src="../../assets/icon.png">
+          <div>
+            <h1>InputShare</h1>
+            <p>Copyright © 2025 <sl-button variant="text"
+              size="large" target="_blank"
+              href="https://github.com/BHznJNs">BHznJNs</sl-button>
+            </p>
+          </div>
+        </header>
+      </div>
+    `
+  }
+}
+
 class AppRoot extends LitElement {
   static styles = css`
     :host {
@@ -291,18 +348,24 @@ class AppRoot extends LitElement {
     }
   `
 
+  static properties = {
+    isSaving: {type: Boolean, state: true},
+  }
+
   constructor() {
     super()
     this.tabs = {
       general: ref(),
       edgeToggling: ref(),
     }
+    this.isSaving = false
   }
 
-  save() {
+  async save() {
+    this.isSaving = true
     const generalTab = this.tabs.general.value
     const edgeTogglingTab = this.tabs.edgeToggling.value
-    globalThis.backend.save_config({
+    await globalThis.backend.save_config({
       theme: generalTab.theme,
       mouse_speed: generalTab.mouseSpeed,
       edge_toggling: edgeTogglingTab.enable,
@@ -313,7 +376,6 @@ class AppRoot extends LitElement {
     })
     window.close()
   }
-
   cancel() {
     window.close()
   }
@@ -323,12 +385,16 @@ class AppRoot extends LitElement {
       <sl-tab-group placement="start">
         <sl-tab slot="nav" panel="general">${i18n("General", "通用")}</sl-tab>
         <sl-tab slot="nav" panel="edge-toggling">${i18n("Edge Toggling", "贴边切换")}</sl-tab>
+        <sl-tab slot="nav" panel="about">${i18n("About", "关于")}</sl-tab>
 
         <sl-tab-panel name="general">
           <general-tab .ref=${ref(this.tabs.general)}></general-tab>
         </sl-tab-panel>
         <sl-tab-panel name="edge-toggling">
           <edge-toggling-tab .ref=${ref(this.tabs.edgeToggling)}></edge-toggling-tab>
+        </sl-tab-panel>
+        <sl-tab-panel name="about">
+          <about-tab></about-tab>
         </sl-tab-panel>
       </sl-tab-group>
       <div class="actions">
@@ -343,6 +409,7 @@ class AppRoot extends LitElement {
         >
           <sl-button variant="primary"
             @click=${this.save}
+            .loading=${this.isSaving}
           >${i18n("Save", "保存")}</sl-button>
         </sl-tooltip>
       </div>
@@ -353,4 +420,5 @@ class AppRoot extends LitElement {
 customElements.define("setting-item", SettingItem)
 customElements.define("general-tab", GeneralTab)
 customElements.define("edge-toggling-tab", EdgeTogglingTab)
+customElements.define("about-tab", AboutTab)
 customElements.define("app-root", AppRoot)
