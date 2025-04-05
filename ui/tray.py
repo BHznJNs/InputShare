@@ -8,7 +8,7 @@ from input.controller import schedule_toggle as main_schedule_toggle,\
                              schedule_exit as main_schedule_exit
 from scrcpy_client.clipboard_event import SetClipboardEvent
 from ui import ICON_ICO_PATH
-from ui.settings import open_settings_window
+from ui.settings_window import open_settings_window
 from utils import VoidCallable
 from utils.config_manager import get_config
 from utils.i18n import get_i18n

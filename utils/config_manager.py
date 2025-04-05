@@ -3,6 +3,7 @@ import sys, os
 import json
 
 from dataclasses import asdict, dataclass, fields
+from typing import Any
 from utils import DevicePosition, ENGLISH_LANGUAGE,\
                   current_language_code, script_abs_path
 
@@ -37,6 +38,15 @@ class ConfigManager:
         with open(self.path, "w") as f:
             json.dump(config_dict, f, indent=4)
 
+    def use_new_config(self, new_config: ConfigFile):
+        self.config.theme           = new_config.theme
+        self.config.mouse_speed     = new_config.mouse_speed
+        self.config.edge_toggling   = new_config.edge_toggling
+        self.config.device_position = new_config.device_position
+        self.config.trigger_margin  = new_config.trigger_margin
+        self.config.keep_wakeup     = new_config.keep_wakeup
+        self.config.language        = new_config.language
+
     @staticmethod
     def create_default_config(path: str):
         default_config = ConfigFile()
@@ -44,17 +54,24 @@ class ConfigManager:
         with open(path, "w") as f: f.write(config_json)
 
     @staticmethod
-    def read_config(path: str) -> ConfigFile:
-        with open(path, "r") as f: config_content = json.load(f)
-        if type(config_content) != dict: return ConfigFile()
+    def parse_config_json(something: dict | str | Any) -> ConfigFile:
+        # if is a string, parse it as json
+        if type(something) == str: something = json.loads(something)
+        # if is an invalid object, return default config
+        if type(something) != dict: return ConfigFile()
 
         expected_fields = {f.name: f.type for f in fields(ConfigFile)}
         filtered_fields = {}
-        for key, item in config_content.items():
+        for key, item in something.items():
             if key not in expected_fields: continue
             if type(item) != expected_fields[key]: continue
             filtered_fields[key] = item
         return ConfigFile(**filtered_fields)
+
+    @staticmethod
+    def read_config(path: str) -> ConfigFile:
+        with open(path, "r") as f: config_content = json.load(f)
+        return ConfigManager.parse_config_json(config_content)
 
     @staticmethod
     def storage_path() -> str:

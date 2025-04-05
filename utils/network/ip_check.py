@@ -1,5 +1,3 @@
-import ipaddress
-
 def get_ip_from_ip_port(ip_port_str: str) -> str:
     if ip_port_str.count(":") > 1:
         #   IPv6 address

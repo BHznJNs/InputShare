@@ -1,6 +1,6 @@
 import sys
 from dataclasses import asdict
-from PyQWebWindow import QAppManager, QWebWindow
+from PyQWebWindow import QAppManager, QWebWindow, QWorker
 
 from ui import CONNECT_PAGE_PATH, ICON_ICO_PATH
 from utils.adb_controller import get_adb_client, try_connect_device, try_pairing
@@ -54,7 +54,7 @@ def open_connecting_window() -> bool:
         nonlocal window
         window.close()
 
-    app = QAppManager(debugging=True)
+    app = QAppManager()
     window = QWebWindow(
         title=i18n(["InputShare Connection", "输入流转 —— 连接"]),
         icon=str(ICON_ICO_PATH.absolute()),
@@ -63,6 +63,8 @@ def open_connecting_window() -> bool:
     window.register_bindings([
         set_is_wired_connection,
         is_first_use, config,
+    ])
+    window.register_tasks([
         try_pairing, try_connect,
     ])
     window.event_listener\

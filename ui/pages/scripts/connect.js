@@ -1,3 +1,4 @@
+import "../utils/inject-global-style.js"
 import wait from "../utils/wait-backend-loaded.js"
 import { css, html, LitElement, ref } from "../libs/lit-all.min.js"
 
@@ -7,10 +8,6 @@ const config = await globalThis.backend.config()
 
 class PairingTab extends LitElement {
   static styles = css`
-    :host {
-      font-family: var(--text-font);
-      user-select: none;
-    }
     div.frame {
       margin: 0 2rem;
     }
@@ -182,10 +179,6 @@ class PairingTab extends LitElement {
 
 class ConnectTab extends LitElement {
   static styles = css`
-    :host {
-      font-family: var(--text-font);
-      user-select: none;
-    }
     div.frame {
       margin: 0 2rem;
     }
