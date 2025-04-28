@@ -99,7 +99,9 @@ class PairingTab extends LitElement {
 
     const result = await globalThis.backend.try_pairing(`${ip}:${port}`, pairingCode)
     if (result) {
-      this.dispatchEvent(new CustomEvent("pairing-succeeded"))
+      this.dispatchEvent(new CustomEvent("pairing-succeeded", {
+        detail: { ip }
+      }))
       return
     }
     this.tooltips.pair.value.show()
@@ -242,8 +244,12 @@ class ConnectTab extends LitElement {
     }
     this.allowConnect = false
     this.isConnecting = false
-    this.autoDetectPort = config.scan_port
+    this.autoDetectPort = config.detect_port
     this.autoDetectPortCheckbox = ref()
+  }
+
+  set deviceIp(newIp) {
+    this.inputs.ip.value.value = newIp
   }
 
   toggleAutoDetectPort(_) {
@@ -276,8 +282,17 @@ class ConnectTab extends LitElement {
     const port = this.inputs.port.value.value
     const addr = this.autoDetectPort ? ip : `${ip}:${port}`
     const result = await globalThis.backend.try_connect(addr, this.autoDetectPort)
-    if (result) this.dispatchEvent(new CustomEvent("connect-succeeded"))
+    if (result) {
+      this.dispatchEvent(new CustomEvent("connect-succeeded"))
+    } else {
+      this.tooltips.connect.value.show()
+      setTimeout(() => this.tooltips.connect.value.hide(), 5000)
+    }
     this.isConnecting = false
+  }
+
+  firstUpdated() {
+    this.allowConnect = this.checkForm()
   }
 
   render() {
@@ -352,12 +367,14 @@ class AppRoot extends LitElement {
   constructor() {
     super()
     this.tabGroup = ref()
+    this.connectTab = ref()
   }
 
   skipPairing() {
     this.tabGroup.value.show("connect")
   }
-  pairingSucceeded() {
+  pairingSucceeded({ ip }) {
+    this.connectTab.value.deviceIp = ip
     this.tabGroup.value.show("connect")
   }
 
@@ -365,7 +382,8 @@ class AppRoot extends LitElement {
     await globalThis.backend.set_is_wired_connection()
     window.close()
   }
-  connectSucceeded() {
+  async connectSucceeded() {
+    await globalThis.backend.set_connect_success()
     window.close()
   }
 
@@ -389,6 +407,7 @@ class AppRoot extends LitElement {
         </sl-tab-panel>
         <sl-tab-panel name="connect">
           <connect-tab
+            .ref=${ref(this.connectTab)}
             @skip-connect=${this.skipConnect}
             @connect-succeeded=${this.connectSucceeded}
           ></connect-tab>

@@ -115,5 +115,4 @@ def server_receiver_factory() -> VoidCallable:
     client_stop_event = threading.Event()
     thread = threading.Thread(target=receiver)
     thread.start()
-
     return stop_receiver

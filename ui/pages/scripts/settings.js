@@ -126,6 +126,7 @@ class GeneralTab extends LitElement {
       <setting-item>
         <div slot="title">${i18n("Mouse speed: ", "鼠标移动速度：")}</div>
         <sl-range slot="control"
+          tooltip="bottom"
           .ref=${ref(this.refs.mouseSpeed)}
           value="${config.mouse_speed}"
           min="1" max="6" step="0.1"

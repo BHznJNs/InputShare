@@ -1,3 +1,5 @@
+from dataclasses import asdict
+from hmac import new
 import socket
 import threading
 import pystray
@@ -8,9 +10,10 @@ from input.controller import schedule_toggle as main_schedule_toggle,\
                              schedule_exit as main_schedule_exit
 from scrcpy_client.clipboard_event import SetClipboardEvent
 from ui import ICON_ICO_PATH
-from ui.settings_window import open_settings_window
+from ui.window_manager import WindowManager
+from ui.settings_window import settings_window_runner
 from utils import VoidCallable
-from utils.config_manager import get_config
+from utils.config_manager import ConfigFile, ConfigManager, get_config, get_config_manager
 from utils.i18n import get_i18n
 from utils.clipboard import Clipboard
 from utils.logger import LOGGER, LogType
@@ -37,8 +40,17 @@ def create_tray(client_socket: socket.socket):
 
     def toggle_share_keyboard_only(_, item: MenuItem):
         get_config().share_keyboard_only = not item.checked
+
     def toggle_sync_clipboard(_, item: MenuItem):
         get_config().sync_clipboard = not item.checked
+
+    def open_settings_window():
+        def callback(new_config: dict | None):
+            if not new_config: return
+            get_config_manager().use_new_config(new_config)
+            LOGGER.write(LogType.Info, f"New config applied: {new_config}")
+        current_config = asdict(get_config())
+        WindowManager.submit_and_then(settings_window_runner, callback, args=[current_config])
 
     def exit_tray():
         global tray
@@ -81,7 +93,7 @@ def create_tray(client_socket: socket.socket):
     LOGGER.write(LogType.Info, "Tray started.")
     tray.run()
 
-def tray_thread_factory(client_socket: socket.socket) -> VoidCallable:
+def start_system_tray(client_socket: socket.socket) -> VoidCallable:
     def close_tray():
         global tray
         if tray is not None: tray.stop()

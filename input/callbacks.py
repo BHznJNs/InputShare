@@ -32,6 +32,7 @@ def _customized_shortcuts(
     if is_redirecting: return None
     if keymod_state.has_key(HIDKeymod.HID_MOD_LEFT_ALT) or keymod_state.has_key(HIDKeymod.HID_MOD_RIGHT_ALT):
         if k in [SDL_Scancode.SDL_SCANCODE_UP, SDL_Scancode.SDL_SCANCODE_DOWN]:
+            assert type(k) is SDL_Scancode
             return [KeyEvent(KeymodStateStore(), [k]).serialize(), KeyEmptyEvent().serialize()]
         if k == SDL_Scancode.SDL_SCANCODE_LEFTBRACKET:
             return [
@@ -62,9 +63,7 @@ def _compute_mouse_pointer_diff(cur_x: int, cur_y: int, last_x: int, last_y: int
     diff_y = int(diff_y * adjusted_scale)
     return diff_x, diff_y
 
-def callback_context_wrapper(
-    client_socket: socket.socket,
-) -> tuple[
+def callback_context_wrapper(client_socket: socket.socket) -> tuple[
     SendDataCallback, SendDataAsyncCallback,
     KeyEventCallback, KeyEventCallback,
     MouseMoveCallback, MouseClickCallback, MouseScrollCallback,
@@ -78,7 +77,7 @@ def callback_context_wrapper(
         try: client_socket.sendall(data)
         except Exception as e: return e
         return None
-    
+
     def send_data_async(data: bytes):
         async def _async(data: bytes):
             res = await asyncio\

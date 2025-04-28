@@ -1,18 +1,19 @@
 import atexit
 import sys, os
 import json
-
+import threading
 from dataclasses import asdict, dataclass, fields
 from typing import Any, Literal
+from sync_dataclasses import SyncDataClass
 from utils import DevicePosition, ENGLISH_LANGUAGE,\
                   current_language_code, script_abs_path
 
 DEFAULT_CONFIG_FILE_NAME = "config.json"
 
 @dataclass
-class ConfigFile:
+class ConfigFile(SyncDataClass):
     device_ip1: str = ""
-    scan_port: bool = False
+    detect_port: bool = False
     sync_clipboard: bool = True
     share_keyboard_only: bool = False
 
@@ -27,31 +28,35 @@ class ConfigFile:
 
 class ConfigManager:
     def __init__(self):
+        self._lock = threading.Lock()
         file_path = self.path = ConfigManager.storage_path()
         self.is_first_use = not os.path.exists(file_path)
-        if self.is_first_use: ConfigManager.create_default_config(file_path)
+        if self.is_first_use: 
+            ConfigManager.create_default_config(file_path)
         self.config = ConfigManager.read_config(file_path)
         atexit.register(self.save)
 
     def save(self):
-        config_dict = asdict(self.config)
-        with open(self.path, "w") as f:
-            json.dump(config_dict, f, indent=4)
+        with self._lock:
+            config_dict = asdict(self.config)
+            with open(self.path, "w") as f:
+                json.dump(config_dict, f, indent=4)
 
-    def use_new_config(self, new_config: ConfigFile):
-        self.config.theme           = new_config.theme
-        self.config.mouse_speed     = new_config.mouse_speed
-        self.config.edge_toggling   = new_config.edge_toggling
-        self.config.device_position = new_config.device_position
-        self.config.trigger_margin  = new_config.trigger_margin
-        self.config.keep_wakeup     = new_config.keep_wakeup
-        self.config.language        = new_config.language
+    def use_new_config(self, new_config: dict | ConfigFile):
+        with self._lock:
+            if isinstance(new_config, ConfigFile):
+                self.config = new_config
+                return
+            for key, value in new_config.items():
+                if key not in ConfigFile.__dataclass_fields__: continue
+                setattr(self.config, key, value)
 
     @staticmethod
     def create_default_config(path: str):
         default_config = ConfigFile()
         config_json = json.dumps(asdict(default_config))
-        with open(path, "w") as f: f.write(config_json)
+        with open(path, "w") as f: 
+            f.write(config_json)
 
     @staticmethod
     def parse_config_json(something: dict | str | Any) -> ConfigFile:
@@ -84,11 +89,16 @@ class ConfigManager:
         return config_path
 
 __config_instance: ConfigManager | None = None
+__instance_lock = threading.Lock()
+
 def get_config_manager() -> ConfigManager:
     global __config_instance
-    if __config_instance is None:
-        __config_instance = ConfigManager()
-    return __config_instance
+    with __instance_lock:
+        if __config_instance is None:
+            __config_instance = ConfigManager()
+        return __config_instance
+
 def get_config() -> ConfigFile:
     manager = get_config_manager()
-    return manager.config
+    with manager._lock:
+        return manager.config

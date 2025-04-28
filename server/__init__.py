@@ -1,11 +1,11 @@
 import socket
 import subprocess
 from server import scrcpy_receiver, reporter_receiver
-from utils.adb_controller import get_adb_device
+from utils.adb_controller import AdbController
 from utils.logger import LOGGER, LogType
 
 def deploy_scrcpy_server() -> tuple[subprocess.Popen, socket.socket] | Exception:
-    primary_device = get_adb_device()
+    primary_device = AdbController.get_adb_device()
     if isinstance(primary_device, Exception): return primary_device
 
     scrcpy_receiver.push_server(primary_device)
@@ -14,15 +14,17 @@ def deploy_scrcpy_server() -> tuple[subprocess.Popen, socket.socket] | Exception
     server_process = scrcpy_receiver.server_process_factory()
     if isinstance(server_process, Exception):
         return server_process
+    LOGGER.write(LogType.Server, "SCRCPY server deployed successfully.")
 
     client_socket = scrcpy_receiver.try_connect_server("localhost")
     if isinstance(client_socket, Exception):
         return client_socket
 
+    LOGGER.write(LogType.Server, "SCRCPY server connected successfully.")
     return server_process, client_socket
 
 def deploy_reporter_server() -> Exception | None:
-    primary_device = get_adb_device()
+    primary_device = AdbController.get_adb_device()
     if isinstance(primary_device, Exception): return primary_device
     primary_device.forward(f"tcp:{reporter_receiver.SERVER_PORT}", f"tcp:{reporter_receiver.SERVER_PORT}")
 
@@ -38,4 +40,5 @@ def deploy_reporter_server() -> Exception | None:
         if (res := reporter_receiver.install_server(primary_device)) is not None:
             return res
 
+    LOGGER.write(LogType.Server, "Reporter server deployed successfully.")
     return reporter_receiver.start_server(primary_device)

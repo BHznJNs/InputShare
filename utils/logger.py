@@ -1,6 +1,8 @@
-import sys, os
+import sys
+import os
 from enum import Enum
 from utils import script_abs_path
+from utils.multiprocess import current_process_name, is_child_process
 
 class LogType(Enum):
     Info    = 0
@@ -9,7 +11,9 @@ class LogType(Enum):
     Server  = 3
 
 class Logger:
-    DEFAULT_LOG_FILE_NAME = "InputShare-debug.log"
+    DEFAULT_LOG_FILE_NAME = "InputShare-debug.log" if not is_child_process() else\
+                           f"InputShare-debug-{current_process_name()}.log"
+
     LOG_TYPE_NAME_MAP = {
         LogType.Info  : "Info",
         LogType.Error : "Error",
@@ -50,5 +54,6 @@ if getattr(sys, "frozen", False):
 else:
     script_path = script_abs_path(__file__)
     log_base_dir = script_path.parent
+
 log_path = os.path.join(log_base_dir, Logger.DEFAULT_LOG_FILE_NAME)
 LOGGER = Logger(log_path)

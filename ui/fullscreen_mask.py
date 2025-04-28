@@ -1,5 +1,6 @@
 import threading
-import customtkinter as ctk
+import tkinter as tk
+import darkdetect
 
 from utils import VoidCallable, screen_size
 from utils.i18n import get_i18n
@@ -11,16 +12,17 @@ exit_event = threading.Event()
 
 screen_width, screen_height = screen_size()
 
-def check_event(root: ctk.CTk, toplevel: ctk.CTkToplevel):
-    def show_window(root: ctk.CTk, toplevel: ctk.CTkToplevel):
+def interrupt(root: tk.Tk, toplevel: tk.Toplevel, label1: tk.Label, label2: tk.Label):
+    def show_window(root: tk.Tk, toplevel: tk.Toplevel):
         root.deiconify()
         root.focus_force()
         toplevel.deiconify()
         toplevel.lift()
-    def hide_window(root: ctk.CTk, toplevel: ctk.CTkToplevel):
+    def hide_window(root: tk.Tk, toplevel: tk.Toplevel):
         toplevel.withdraw()
         root.withdraw()
 
+    # check event
     if show_event.is_set():
         show_window(root, toplevel)
         show_event.clear()
@@ -30,13 +32,22 @@ def check_event(root: ctk.CTk, toplevel: ctk.CTkToplevel):
     elif exit_event.is_set():
         LOGGER.write(LogType.Info, "Fullscreen mask exited.")
         root.quit()
+    
+    if darkdetect.isDark():
+        toplevel.config(bg="#161616")
+        label1.config(fg="#fff", bg="#161616")
+        label2.config(fg="#fff", bg="#161616")
+    else:
+        toplevel.config(bg="#f7f7f7")
+        label1.config(fg="#333333", bg="#f7f7f7")
+        label2.config(fg="#333333", bg="#f7f7f7")
 
     interval_ms = 2 # 500 times per second
-    root.after(interval_ms, check_event, root, toplevel)
+    root.after(interval_ms, interrupt, root, toplevel, label1, label2)
 
 def open_mask_window():
     i18n = get_i18n()
-    root = ctk.CTk()
+    root = tk.Tk()
     root.wm_title(i18n(["InputShare Mask", "输入流转 —— 蒙版"]))
     root.wm_attributes("-alpha", 0.01)
     root.wm_attributes("-topmost", True)
@@ -46,11 +57,11 @@ def open_mask_window():
     root.geometry(f"{screen_width}x{screen_height}")
 
     larger_font = i18n([
-        ctk.CTkFont(family="Arial", size=18),
-        ctk.CTkFont(family="Microsoft YaHei", size=18),
+        ("Arial", 18),
+        ("Microsoft YaHei", 18),
     ])
 
-    label_toplevel = ctk.CTkToplevel(master=root)
+    label_toplevel = tk.Toplevel(master=root)
     label_toplevel.geometry("+20+20")
     label_toplevel.wm_title(i18n(["InputShare Shortcuts", "输入流转 —— 快捷键提示"]))
     label_toplevel.wm_attributes('-alpha', 0.6)
@@ -58,12 +69,12 @@ def open_mask_window():
     label_toplevel.overrideredirect(True)
     label_toplevel.configure(cursor="none")
 
-    label1 = ctk.CTkLabel(
+    label1 = tk.Label(
         master=label_toplevel,
         text=i18n(["Use <Ctrl>+<Alt>+q to quit", "使用 <Ctrl>+<Alt>+q 退出程序"]),
         font=larger_font,
     )
-    label2 = ctk.CTkLabel(
+    label2 = tk.Label(
         master=label_toplevel,
         text=i18n(["Use <Ctrl>+<Alt>+s to toggle", "使用 <Ctrl>+<Alt>+s 切换控制"]),
         font=larger_font,
@@ -71,18 +82,15 @@ def open_mask_window():
     label1.pack(padx=8, pady=4, anchor="w")
     label2.pack(padx=8, pady=4, anchor="w")
 
-    root.after(0, check_event, root, label_toplevel)
+    root.after(0, interrupt, root, label_toplevel, label1, label2)
     root.mainloop()
 
 def mask_thread_factory() -> tuple[
     VoidCallable, VoidCallable, VoidCallable,
 ]:
-    def show_mask():
-        show_event.set()
-    def hide_mask():
-        hide_event.set()
-    def exit_mask():
-        exit_event.set()
+    def show_mask(): show_event.set()
+    def hide_mask(): hide_event.set()
+    def exit_mask(): exit_event.set()
 
     mask_thread = threading.Thread(target=open_mask_window)
     mask_thread.start()

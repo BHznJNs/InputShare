@@ -1,63 +1,34 @@
-import threading
-import multiprocessing
-import threading
+def settings_window_runner(client: "IpcClient", current_config: dict): # type: ignore
+    import darkdetect
+    from PyQWebWindow.all import QWebWindow
+    from ui import ICON_ICO_PATH, SETTINGS_PAGE_PATH
+    from utils.i18n import get_i18n
 
-from dataclasses import asdict
-from PyQWebWindow import QAppManager, QWebWindow
-from ui import ICON_ICO_PATH, SETTINGS_PAGE_PATH
-from utils.config_manager import ConfigManager, get_config, get_config_manager
-from utils.i18n import get_i18n
-from utils.logger import LOGGER, LogType
-
-def settings_window_runner(result_queue: multiprocessing.Queue):
     i18n = get_i18n()
+    new_config = None
 
     def config() -> dict:
-        config_ = get_config()
-        return asdict(config_)
+        return current_config
 
     def save_config(config: dict):
-        nonlocal result_queue, window
-        result_queue.put(config)
-        window.close()
+        nonlocal new_config
+        new_config = config
 
     def setting_finished_callback():
-        nonlocal window
+        nonlocal window, new_config
         window.close()
+        client.emit("task-completed", new_config)
 
-    app = QAppManager(theme=get_config().theme)
     window = QWebWindow(
         title=i18n(["InputShare Settings", "输入流转 —— 设置"]),
         icon=str(ICON_ICO_PATH.absolute()),
         size=(720, 400),
         minimum_size=(600, 360),
-    )
+        background_color="#121212" if darkdetect.isDark() else "#FFFFFF")
     window.event_listener\
-        .add_event_listener("window_close_requested", setting_finished_callback)
-    window.register_bindings([
-        config, save_config,
-    ])
+          .add_event_listener("window_close_requested", setting_finished_callback)
+
     window.load_file(str(SETTINGS_PAGE_PATH))
+    window.register_bindings([config, save_config])
     window.start()
-    app.exec()
-    result_queue.put(None)
-
-def open_settings_window() -> threading.Thread:
-    def inner():
-        result_queue = multiprocessing.Queue()
-        window_process = multiprocessing.Process(
-            target=settings_window_runner,
-            args=[result_queue],
-        )
-        window_process.start()
-        window_process.join()
-
-        result: str | None = result_queue.get()
-        if result is None: return
-        new_config = ConfigManager.parse_config_json(result)
-        get_config_manager().use_new_config(new_config)
-        LOGGER.write(LogType.Info, "config saved: " + str(new_config))
-
-    background_thread = threading.Thread(target=inner, daemon=True)
-    background_thread.start()
-    return background_thread
+    return new_config
