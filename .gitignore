@@ -2,9 +2,12 @@
 
 /build
 /dist
+/venv
+/deployment
 
 __pycache__/
 
 *.spec
 *.log
-*.json
+nuitka-crash-report.*
+config.json

@@ -13,11 +13,16 @@ class WindowManager:
 
     @staticmethod
     def _initializer(ipc_port: int):
+        def exit_handler():
+            nonlocal app, client
+            client.stop()
+            app.quit()
+
         from PyQWebWindow.all import QAppManager, IpcClient
-        app = QAppManager(debugging=True, auto_quit=False)
+        app = QAppManager(auto_quit=False)
         client = IpcClient(port=ipc_port)
         client.on("run-task", lambda task, *args: task(client, *args))
-        client.on("process-exit", lambda: app.quit())
+        client.on("process-exit", exit_handler)
         app.use_ipc_client(client)
         app.exec()
 
@@ -34,6 +39,7 @@ class WindowManager:
     def shutdown():
         WindowManager._server.emit("process-exit")
         WindowManager._worker.join()
+        WindowManager._server.stop()
 
     @staticmethod
     def submit_and_wait(
