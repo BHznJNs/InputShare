@@ -1,8 +1,8 @@
 from socket import socket
-from ui.connecting_window import ConnectResult
 from utils import VoidCallable
 
 def try_connect() -> Exception | None:
+    from ui.connect_window import ConnectResult
     from utils.network.ip_check import get_ip_from_ip_port
 
     res = WindowManager.submit_and_wait(connecting_window_runner, ConnectResult)
@@ -98,12 +98,12 @@ if __name__ == "__main__":
     from multiprocessing import freeze_support
     from ui.window_manager import WindowManager
     freeze_support()
-    WindowManager.init()
+    WindowManager.init(True)
 
     import sys
     from server import deploy_reporter_server, deploy_scrcpy_server, scrcpy_receiver, reporter_receiver
     from input.callbacks import callback_context_wrapper
-    from ui.connecting_window import connecting_window_runner
+    from ui.connect_window import connecting_window_runner
     from ui.tray import start_system_tray
     from utils.adb_controller import AdbController
     from utils.config_manager import get_config

@@ -57,8 +57,8 @@ def open_mask_window():
     root.geometry(f"{screen_width}x{screen_height}")
 
     larger_font = i18n([
-        ("Arial", 18),
-        ("Microsoft YaHei", 18),
+        ("Arial", 16),
+        ("Microsoft YaHei", 16),
     ])
 
     label_toplevel = tk.Toplevel(master=root)

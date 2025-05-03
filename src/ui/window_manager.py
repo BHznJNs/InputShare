@@ -12,14 +12,14 @@ class WindowManager:
     _worker: Process
 
     @staticmethod
-    def _initializer(ipc_port: int):
+    def _initializer(debugging: bool, ipc_port: int):
         def exit_handler():
             nonlocal app, client
             client.stop()
             app.quit()
 
         from PyQWebWindow.all import QAppManager, IpcClient
-        app = QAppManager(auto_quit=False)
+        app = QAppManager(debugging=debugging, auto_quit=False)
         client = IpcClient(port=ipc_port)
         client.on("run-task", lambda task, *args: task(client, *args))
         client.on("process-exit", exit_handler)
@@ -27,11 +27,11 @@ class WindowManager:
         app.exec()
 
     @staticmethod
-    def init():
+    def init(debugging: bool = False):
         ipc_port = find_available_port(5556)
         WindowManager._server = IpcServer(port=ipc_port)
         WindowManager._server.start()
-        WindowManager._worker = Process(target=WindowManager._initializer, args=[ipc_port])
+        WindowManager._worker = Process(target=WindowManager._initializer, args=[debugging, ipc_port])
         WindowManager._worker.start()
         atexit.register(WindowManager.shutdown)
 

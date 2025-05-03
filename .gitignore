@@ -4,8 +4,11 @@
 /dist
 /venv
 /deployment
+/main.build
+/main.dist
 
 __pycache__/
+frontend-dist/
 
 *.spec
 *.log

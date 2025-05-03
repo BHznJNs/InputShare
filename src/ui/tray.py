@@ -1,11 +1,9 @@
-from dataclasses import asdict
-from hmac import new
 import socket
 import threading
 import pystray
 
 from PIL import Image
-
+from dataclasses import asdict
 from input.controller import schedule_toggle as main_schedule_toggle,\
                              schedule_exit as main_schedule_exit
 from scrcpy_client.clipboard_event import SetClipboardEvent
@@ -13,7 +11,7 @@ from ui import ICON_ICO_PATH
 from ui.window_manager import WindowManager
 from ui.settings_window import settings_window_runner
 from utils import VoidCallable
-from utils.config_manager import ConfigFile, ConfigManager, get_config, get_config_manager
+from utils.config_manager import get_config, get_config_manager
 from utils.i18n import get_i18n
 from utils.clipboard import Clipboard
 from utils.logger import LOGGER, LogType
@@ -46,11 +44,11 @@ def create_tray(client_socket: socket.socket):
 
     def open_settings_window():
         def callback(new_config: dict | None):
-            if not new_config: return
+            if new_config is None: return
             get_config_manager().use_new_config(new_config)
             LOGGER.write(LogType.Info, f"New config applied: {new_config}")
         current_config = asdict(get_config())
-        WindowManager.submit_and_then(settings_window_runner, callback, args=[current_config])
+        WindowManager.submit_and_then(settings_window_runner, callback, [current_config])
 
     def exit_tray():
         global tray
@@ -99,6 +97,9 @@ def start_system_tray(client_socket: socket.socket) -> VoidCallable:
         if tray is not None: tray.stop()
         LOGGER.write(LogType.Info, "Tray stopped.")
 
+    # For Windows and Linux, it is possible to just launch the icon mainloop in a thread,
+    # For MacOS, `run_detached` is strictly necessary
+    # see: https://pystray.readthedocs.io/en/latest/faq.html
     thread = threading.Thread(
         target=create_tray,
         args=[client_socket],
