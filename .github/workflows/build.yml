@@ -41,10 +41,10 @@ jobs:
           pip install -r requirements.txt
           pip install nuitka
 
-      - uses: Nuitka/Nuitka-Action@main
-        with:
-          nuitka-version: main
-          script-name: src/main.py
+      - name: Build executable with Nuitka
+        run: |
+          ./build_venv/Scripts/activate
+          python -m nuitka --assume-yes-for-downloads src/main.py
 
       - name: Archive Windows executable
         run: Compress-Archive -Path main.dist/ -DestinationPath InputShare-win_${{ matrix.architecture }}.zip

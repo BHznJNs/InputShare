@@ -1,4 +1,4 @@
-# nuitka-project: --standalone
+# nuitka-project: --mode=standalone
 # nuitka-project: --show-modules
 # nuitka-project: --follow-imports
 # nuitka-project: --enable-plugins=pyside6
