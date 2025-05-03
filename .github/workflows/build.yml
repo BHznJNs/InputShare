@@ -66,43 +66,51 @@ jobs:
             InputShare-setup_${{ matrix.architecture }}.exe
           token: ${{ secrets.GITHUB_TOKEN }}
 
-  # build-linux:
-  #   strategy:
-  #     matrix:
-  #       architecture: [x86_64, aarch64]
-  #       python-version: [3.10.7]
-  #   runs-on: ubuntu-latest
+  build-linux:
+    strategy:
+      matrix:
+        architecture: [x86_64, arm64]
+    runs-on: ubuntu-latest
 
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-  #     - name: Set up the environment
-  #       uses: actions/setup-python@v2
-  #       with:
-  #         python-version: ${{ matrix.python-version }}
-      
-  #     - name: Install dependencies
-  #       run: |
-  #         python -m venv build_venv
-  #         source ./build_venv/bin/activate
-  #         python -m pip install --upgrade pip
-  #         pip install pyinstaller
-  #         pip install -r requirements.txt
+      - name: Set up Nodejs
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODEJS_VERSION }}
 
-  #     - name: Build executable with PyInstaller
-  #       run: |
-  #         source ./build_venv/bin/activate
-  #         ./build_venv/bin/pyinstaller --windowed --icon=ui/icon.ico --add-data="./ui/icon.ico:ui/" --add-data="./ui/icon.png:ui/" --add-data="./adb-bin/:adb-bin/" --add-data="./server/scrcpy-server:server/" --add-data="./build_venv/Lib/site-packages/customtkinter:customtkinter/" --noconfirm main.py
-  #       env:
-  #         PYTHONUNBUFFERED: 1
+      - name: Build frontend
+        working-directory: './src/ui/frontend'
+        run: |
+          npm i
+          npm run build:strict
 
-  #     - name: Archive Linux executable
-  #       run: zip -j InputShare-linux-${{ matrix.architecture }}.zip dist/main
-  #       shell: bash
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
 
-  #     - name: Release
-  #       uses: softprops/action-gh-release@v2
-  #       with:
-  #         files: InputShare-linux-${{ matrix.architecture }}.zip
-  #         token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Install dependencies
+        run: |
+          python -m venv build_venv
+          source ./build_venv/bin/activate
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install nuitka
+
+      - name: Build executable with Nuitka
+        run: |
+          source ./build_venv/bin/activate
+          python -m nuitka --assume-yes-for-downloads src/main.py
+
+      - name: Archive Linux executable
+        run: zip -j InputShare-linux-${{ matrix.architecture }}.zip main.dist/
+        shell: bash
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: InputShare-linux-${{ matrix.architecture }}.zip
+          token: ${{ secrets.GITHUB_TOKEN }}

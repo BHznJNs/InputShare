@@ -1,3 +1,4 @@
+import platform
 import re
 import os
 import sys
@@ -9,7 +10,13 @@ from utils import script_abs_path
 from utils.logger import LogType, LOGGER
 
 script_path = script_abs_path(__file__).parent
-adb_relative_path = "assets/adb-bin/adb.exe"
+match platform.system():
+    case "Windows":
+        adb_relative_path = "assets/adb-bin/adb.exe"
+    case "Linux":
+        adb_relative_path = "assets/adb-bin/adb"
+    case str(system):
+        raise Exception("Not supported system: ", system)
 adb_bin_path = Path.joinpath(script_path, adb_relative_path)
 os.environ["ADBUTILS_ADB_PATH"] = str(adb_bin_path)
 
