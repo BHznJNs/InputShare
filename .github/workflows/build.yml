@@ -44,7 +44,9 @@ jobs:
           pip install nuitka
 
       - name: Build executable with Nuitka
-        run: python -m nuitka src/main.py
+        run: |
+          ./build_venv/Scripts/activate
+          python -m nuitka src/main.py
 
       - name: Archive Windows executable
         run: Compress-Archive -Path main.dist/ -DestinationPath InputShare_${{ matrix.architecture }}.zip
