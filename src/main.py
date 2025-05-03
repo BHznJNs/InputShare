@@ -1,3 +1,24 @@
+# nuitka-project: --standalone
+# nuitka-project: --show-modules
+# nuitka-project: --follow-imports
+# nuitka-project: --enable-plugins=pyside6
+# nuitka-project: --enable-plugins=tk-inter
+# nuitka-project: --windows-icon-from-ico="src/assets/icon.ico"
+# nuitka-project: --include-data-file={MAIN_DIRECTORY}/assets/icon.ico=assets/icon.ico
+# nuitka-project: --include-data-file={MAIN_DIRECTORY}/assets/icon.png=assets/icon.png
+# nuitka-project: --include-data-file={MAIN_DIRECTORY}/server/reporter.apk=server/reporter.apk
+# nuitka-project: --include-data-file={MAIN_DIRECTORY}/server/scrcpy-server=server/scrcpy-server
+# nuitka-project: --include-data-dir={MAIN_DIRECTORY}/ui/frontend-dist=ui/frontend-dist
+# nuitka-project-if: {OS} == "Windows":
+#     nuitka-project: --include-data-file={MAIN_DIRECTORY}/assets/adb-bin/adb.exe=assets/adb-bin/adb.exe
+#     nuitka-project: --include-data-file={MAIN_DIRECTORY}/assets/adb-bin/AdbWinApi.dll=assets/adb-bin/AdbWinApi.dll
+#     nuitka-project: --include-data-file={MAIN_DIRECTORY}/assets/adb-bin/AdbWinUsbApi.dll=assets/adb-bin/AdbWinUsbApi.dll
+#     nuitka-project: --noinclude-data-files=PySide6/translations/*
+# nuitka-project-if: {OS} == "Windows"
+#     nuitka-project: --windows-console-mode=hide
+# nuitka-project-else:
+#     nuitka-project: --windows-console-mode=disabled
+
 from socket import socket
 from utils import VoidCallable
 

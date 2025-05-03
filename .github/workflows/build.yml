@@ -4,63 +4,64 @@ on:
   release:
     types: [created]
 
+env:
+  PYTHON_VERSION: '3.11.9'
+  NODEJS_VERSION: '22.15.0'
+
 jobs:
   build-win:
     strategy:
       matrix:
-        architecture: [x86_64]
-        python-version: [3.10.7]
+        architecture: [x86_64, arm64]
     runs-on: windows-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      
+      - name: Set up Nodejs
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODEJS_VERSION }}
+      
+      - name: Build frontend
+        working-directory: './src/ui/frontend'
+        run: |
+          npm i
+          npm run build:strict
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install dependencies
         run: |
           python -m venv build_venv
           ./build_venv/Scripts/activate
           python -m pip install --upgrade pip
-          pip install pyinstaller
           pip install -r requirements.txt
+          pip install nuitka
 
-      - name: Build executable with PyInstaller
-        run: |
-          ./build_venv/Scripts/activate
-          ./build_venv/Scripts/pyinstaller `
-            --windowed `
-            --icon=ui/icon.ico `
-            --add-data "./ui/icon.ico;ui/" `
-            --add-data "./ui/icon.png;ui/" `
-            --add-data "./adb-bin/;adb-bin/" `
-            --add-data "./server/scrcpy-server;server/" `
-            --add-data "./server/reporter.apk;server/" `
-            --add-data "./build_venv/Lib/site-packages/customtkinter;customtkinter/" `
-            --noconfirm main.py
-        env:
-          PYTHONUNBUFFERED: 1
+      - name: Build executable with Nuitka
+        run: python -m nuitka src/main.py
 
       - name: Archive Windows executable
-        run: Compress-Archive -Path dist/main/ -DestinationPath InputShare-win-x64.zip
+        run: Compress-Archive -Path main.dist/ -DestinationPath InputShare_${{ matrix.architecture }}.zip
         shell: pwsh
-      
+
       - name: Compile .ISS to .EXE Installer
         uses: Minionguyjpro/Inno-Setup-Action@v1.2.2
         with:
           path: setup.iss
-          options: /O+
+          options: /O+ /F"InputShare_setup-${{ matrix.architecture }}.exe"
 
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            InputShare-win-x64.zip
-            InputShare_setup.exe
+            InputShare_${{ matrix.architecture }}.zip
+            InputShare_setup-${{ matrix.architecture }}.exe
           token: ${{ secrets.GITHUB_TOKEN }}
 
   # build-linux:

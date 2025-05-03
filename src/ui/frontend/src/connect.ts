@@ -15,7 +15,6 @@ import "./utils/theme-controller.ts"
 import { I18n } from "./utils/i18n.ts"
 import waitBackendLoad from "./utils/wait-backend-loaded.ts"
 
-
 declare global {
   interface Backend {
     set_is_wired_connection: () => Promise<void>

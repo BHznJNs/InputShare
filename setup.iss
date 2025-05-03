@@ -1,10 +1,10 @@
 [Languages]
 Name: "en"; MessagesFile: "compiler:Default.isl"
-Name: "zh_CN"; MessagesFile: ".\assets\ChineseSimplified.isl"
+Name: "zh_CN"; MessagesFile: ".\src\assets\ChineseSimplified.isl"
 
 [Setup]
 AppName="InputShare"
-AppVersion=0.7.6
+AppVersion=0.9.0
 DefaultDirName={userappdata}\InputShare
 DefaultGroupName="InputShare"
 OutputDir=.\
@@ -14,8 +14,7 @@ SolidCompression=yes
 PrivilegesRequired=lowest
 
 [Files]
-Source: "dist\main\main.exe"; DestDir: "{app}"; Flags: ignoreversion
-Source: "dist\main\_internal\*"; DestDir: "{app}\_internal"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "main.dist\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Icons]
 Name: "{group}\InputShare"; Filename: "{app}\main.exe"
