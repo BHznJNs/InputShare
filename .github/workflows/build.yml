@@ -37,33 +37,31 @@ jobs:
 
       - name: Install dependencies
         run: |
-          python -m venv build_venv
-          ./build_venv/Scripts/activate
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install nuitka
 
-      - name: Build executable with Nuitka
-        run: |
-          ./build_venv/Scripts/activate
-          python -m nuitka src/main.py
+      - uses: Nuitka/Nuitka-Action@main
+        with:
+          nuitka-version: main
+          script-name: src/main.py
 
       - name: Archive Windows executable
-        run: Compress-Archive -Path main.dist/ -DestinationPath InputShare_${{ matrix.architecture }}.zip
+        run: Compress-Archive -Path main.dist/ -DestinationPath InputShare-win_${{ matrix.architecture }}.zip
         shell: pwsh
 
       - name: Compile .ISS to .EXE Installer
         uses: Minionguyjpro/Inno-Setup-Action@v1.2.2
         with:
           path: setup.iss
-          options: /O+ /F"InputShare_setup-${{ matrix.architecture }}.exe"
+          options: /O+ /F"InputShare-setup_${{ matrix.architecture }}.exe"
 
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            InputShare_${{ matrix.architecture }}.zip
-            InputShare_setup-${{ matrix.architecture }}.exe
+            InputShare-win_${{ matrix.architecture }}.zip
+            InputShare-setup_${{ matrix.architecture }}.exe
           token: ${{ secrets.GITHUB_TOKEN }}
 
   # build-linux:
