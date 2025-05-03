@@ -56,7 +56,7 @@ jobs:
         uses: Minionguyjpro/Inno-Setup-Action@v1.2.2
         with:
           path: setup.iss
-          options: /O+ /F"InputShare-setup_${{ matrix.architecture }}.exe"
+          options: /O+ /F"InputShare-setup_${{ matrix.architecture }}"
 
       - name: Release
         uses: softprops/action-gh-release@v2
