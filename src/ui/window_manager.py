@@ -13,15 +13,27 @@ class WindowManager:
 
     @staticmethod
     def _initializer(debugging: bool, ipc_port: int):
+        from PyQWebWindow.all import QAppManager, QWebWindow, IpcClient
+
+        def run_task_handler(task: Callable[[IpcClient, Any], QWebWindow], *args):
+            nonlocal window_pool
+            if task in window_pool:
+                window = window_pool[task]
+                window.show()
+
+            window = task(client, *args)
+            window_pool[task] = window
+            window.window.closed.connect(lambda: window_pool.pop(task))
+
         def exit_handler():
             nonlocal app, client
             client.stop()
             app.quit()
 
-        from PyQWebWindow.all import QAppManager, IpcClient
         app = QAppManager(debugging=debugging, auto_quit=False)
+        window_pool: dict[Callable[[IpcClient, Any], QWebWindow], QWebWindow] = {}
         client = IpcClient(port=ipc_port)
-        client.on("run-task", lambda task, *args: task(client, *args))
+        client.on("run-task", run_task_handler)
         client.on("process-exit", exit_handler)
         app.use_ipc_client(client)
         app.exec()

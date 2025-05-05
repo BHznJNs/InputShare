@@ -1,4 +1,4 @@
-def settings_window_runner(client: "IpcClient", current_config: dict): # type: ignore
+def settings_window_runner(client: "IpcClient", current_config: dict) -> "QWebWindow": # type: ignore
     import darkdetect
     from PyQWebWindow.all import QWebWindow, IpcClient
     from ui import ICON_ICO_PATH, SETTINGS_PAGE_PATH
@@ -32,3 +32,4 @@ def settings_window_runner(client: "IpcClient", current_config: dict): # type: i
     window.load_file(str(SETTINGS_PAGE_PATH))
     window.register_bindings([config, save_config])
     window.start()
+    return window

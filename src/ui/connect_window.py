@@ -7,7 +7,7 @@ class ConnectResult:
     connected_addr: str | None
     detect_port: bool
 
-def connecting_window_runner(client: "IpcClient"): # type: ignore
+def connecting_window_runner(client: "IpcClient") -> "QWebWindow": # type: ignore
     import darkdetect
     from dataclasses import asdict
     from PyQWebWindow.all import QWebWindow, IpcClient
@@ -87,3 +87,4 @@ def connecting_window_runner(client: "IpcClient"): # type: ignore
           .add_event_listener("window_closed", window_closed_callback)
     window.load_file(str(CONNECT_PAGE_PATH))
     window.start()
+    return window
