@@ -20,6 +20,7 @@ export default defineConfig({
   },
   build: {
     outDir: "../frontend-dist",
+    modulePreload: false,
     rollupOptions: {
       input: {
         connect: resolve(__dirname, "connect.html"),
