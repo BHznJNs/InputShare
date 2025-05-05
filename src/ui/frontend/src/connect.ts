@@ -312,7 +312,6 @@ export class ConnectTab extends LitElement {
     const port = this.inputs.port.value?.value
     const addr = this.autoDetectPort ? ip : `${ip}:${port}`
     const result = await globalThis.backend.try_connect(addr, this.autoDetectPort)
-    // const result = await webui.call("tryConnect", addr, this.autoDetectPort)
 
     if (result) {
       this.dispatchEvent(new CustomEvent("connect-succeeded"))
@@ -323,9 +322,11 @@ export class ConnectTab extends LitElement {
     this.isConnecting = false
   }
 
-  // firstUpdated(): void {
-  //   this.allowConnect = this.checkForm()
-  // }
+  firstUpdated(): void {
+    if (config.device_ip1.length) {
+      this.allowConnect = this.checkForm()
+    }
+  }
 
   render() {
     return html`

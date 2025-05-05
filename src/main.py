@@ -11,15 +11,12 @@
 # nuitka-project: --include-data-dir={MAIN_DIRECTORY}/ui/frontend-dist=ui/frontend-dist
 # nuitka-project: --noinclude-data-files=PySide6/translations/*
 # nuitka-project-if: {OS} == "Windows":
+#     nuitka-project: --windows-console-mode=hide
 #     nuitka-project: --include-data-file={MAIN_DIRECTORY}/assets/adb-bin/adb.exe=assets/adb-bin/adb.exe
 #     nuitka-project: --include-data-file={MAIN_DIRECTORY}/assets/adb-bin/AdbWinApi.dll=assets/adb-bin/AdbWinApi.dll
 #     nuitka-project: --include-data-file={MAIN_DIRECTORY}/assets/adb-bin/AdbWinUsbApi.dll=assets/adb-bin/AdbWinUsbApi.dll
 # nuitka-project-if: {OS} == "Linux":
 #     nuitka-project: --include-data-file={MAIN_DIRECTORY}/assets/adb-bin/adb=assets/adb-bin/adb
-# nuitka-project-if: {OS} == "Windows":
-#     nuitka-project: --windows-console-mode=hide
-# nuitka-project-else:
-#     nuitka-project: --windows-console-mode=disabled
 
 from socket import socket
 from utils import VoidCallable
