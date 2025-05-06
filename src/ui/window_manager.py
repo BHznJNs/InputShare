@@ -2,7 +2,7 @@ import asyncio
 import atexit
 from multiprocessing import Process
 from typing import Any, Callable, Iterable, TypeVar
-from PyQWebWindow.ipc.MqIpc.server import IpcServer
+from PyQWebWindow.MqIpc.server import IpcServer
 from utils.network.port_check import find_available_port
 
 _TaskResult = TypeVar("_TaskResult")
@@ -30,7 +30,7 @@ class WindowManager:
             client.stop()
             app.quit()
 
-        app = QAppManager(debugging=debugging, auto_quit=False)
+        app = QAppManager(debugging=debugging, disable_gpu=True, auto_quit=False)
         window_pool: dict[Callable[[IpcClient, Any], QWebWindow], QWebWindow] = {}
         client = IpcClient(port=ipc_port)
         client.on("run-task", run_task_handler)
