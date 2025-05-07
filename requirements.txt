@@ -3,7 +3,7 @@ darkdetect==0.8.0
 notify_py==0.3.43
 pynput==1.7.6
 pyperclip==1.9.0
-PyQWebWindow==0.6.4
+PyQWebWindow==0.6.6
 pystray==0.19.5
 screeninfo==0.8.1
 sync_dataclasses==0.1.0

@@ -19,7 +19,8 @@ class WindowManager:
             nonlocal window_pool
             if task in window_pool:
                 window = window_pool[task]
-                window.show()
+                window.focus()
+                return
 
             window = task(client, *args)
             window_pool[task] = window
