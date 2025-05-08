@@ -1,9 +1,9 @@
 <div align="center">
     <br />
-    <img src="./ui/icon.png" alt="InputShare Logo" width="160" height="160" />
+    <img src="./src/ui/icon.png" alt="InputShare Logo" width="160" height="160" />
     <h1>InputShare</h1>
     <a href="README_zh.md">中文介绍</a> |
-    <a href="README.md">English</a> |
+    <a href="../../README.md">English</a> |
     <a href="README_ja.md">日本語</a> |
     <a href="README_fr.md">Français</a> |
     <a href="README_es.md">Español</a> |
@@ -57,10 +57,10 @@ __InputShare__ يتيح لك مشاركة لوحة المفاتيح والماو
 
 ## وثائق المستخدم
 
-- [الاختصارات](./docs/shortcuts_ar.md)
-- [الأسئلة الشائعة](./docs/faqs_ar.md)
-- [القيود](./docs/limitations_ar.md)
-- [التطوير](./docs/development_ar.md)
+- [الاختصارات](../../shortcuts/shortcuts_ar.md)
+- [الأسئلة الشائعة](../../faqs/faqs_ar.md)
+- [القيود](../../limitations/limitations_ar.md)
+- [التطوير](../../development/development_ar.md)
 
 ## شكر وتقدير
 

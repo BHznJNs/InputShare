@@ -1,16 +1,16 @@
 <div align="center">
     <br />
-    <img src="./ui/icon.png" alt="InputShare Logo" width="160" height="160" />
+    <img src="./src/ui/icon.png" alt="InputShare Logo" width="160" height="160" />
     <h1>InputShare</h1>
-    <a href="README_zh.md">中文介绍</a> |
+    <a href="./docs/README/README_zh.md">中文介绍</a> |
     <a href="README.md">English</a> |
-    <a href="README_ja.md">日本語</a> |
-    <a href="README_fr.md">Français</a> |
-    <a href="README_es.md">Español</a> |
-    <a href="README_ru.md">Русский</a> |
-    <a href="README_ar.md">العربية</a> <br>
-    <a href="https://bhznjns.github.io/InputShare/">Homepage</a> |
-    <a href="https://github.com/BHznJNs/InputShare/issues">Feedback</a> |
+    <a href="./docs/README/README_ja.md">日本語</a> |
+    <a href="./docs/README/README_fr.md">Français</a> |
+    <a href="./docs/README/README_es.md">Español</a> |
+    <a href="./docs/README/README_ru.md">Русский</a> |
+    <a href="./docs/README/README_ar.md">العربية</a> <br>
+    <a href="https://inputshare.github.io/">Homepage</a> |
+    <a href="https://github.com/InputShare/InputShare/issues">Feedback</a> |
     <a href="https://discord.gg/BwHCxUwnYw">Discord</a>
     <br />
     <br />
@@ -57,10 +57,10 @@ For wireless connection:
 
 ## User documentation
 
-- [Shortcuts](./docs/shortcuts_en.md)
-- [FAQs](./docs/faqs_en.md)
-- [Limitations](./docs/limitations_en.md)
-- [Development](./docs/development_en.md)
+- [Shortcuts](./docs/shortcuts/shortcuts_en.md)
+- [FAQs](./docs/faqs/faqs_en.md)
+- [Limitations](./docs/limitations/limitations_en.md)
+- [Development](./docs/development/development_en.md)
 
 ## Thanks
 

@@ -1,9 +1,9 @@
 <div align="center">
     <br />
-    <img src="./ui/icon.png" alt="InputShare Logo" width="160" height="160" />
+    <img src="./src/ui/icon.png" alt="InputShare Logo" width="160" height="160" />
     <h1>InputShare</h1>
     <a href="README_zh.md">中文介绍</a> |
-    <a href="README.md">English</a> |
+    <a href="../../README.md">English</a> |
     <a href="README_ja.md">日本語</a> |
     <a href="README_fr.md">Français</a> |
     <a href="README_es.md">Español</a> |
@@ -57,10 +57,10 @@ __InputShare__ は、ADB を介して有線/無線でコンピューターのキ
 
 ## ユーザー向けドキュメント
 
-- [ショートカット](./docs/shortcuts_ja.md)
-- [よくある質問](./docs/faqs_ja.md)
-- [制限事項](./docs/limitations_ja.md)
-- [開発](./docs/development_ja.md)
+- [ショートカット](../../shortcuts/shortcuts_ja.md)
+- [よくある質問](../../faqs/faqs_ja.md)
+- [制限事項](../../limitations/limitations_ja.md)
+- [開発](../../development/development_ja.md)
 
 ## 感謝
 

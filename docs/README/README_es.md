@@ -1,9 +1,9 @@
 <div align="center">
     <br />
-    <img src="./ui/icon.png" alt="InputShare Logo" width="160" height="160" />
+    <img src="./src/ui/icon.png" alt="InputShare Logo" width="160" height="160" />
     <h1>InputShare</h1>
     <a href="README_zh.md">中文介绍</a> |
-    <a href="README.md">English</a> |
+    <a href="../../README.md">English</a> |
     <a href="README_ja.md">日本語</a> |
     <a href="README_fr.md">Français</a> |
     <a href="README_es.md">Español</a> |
@@ -57,10 +57,10 @@ Para conexión inalámbrica:
 
 ## Documentación del usuario
 
-- [Atajos](./docs/shortcuts_es.md)
-- [Preguntas frecuentes](./docs/faqs_es.md)
-- [Limitaciones](./docs/limitations_es.md)
-- [Desarrollo](./docs/development_es.md)
+- [Atajos](../../shortcuts/shortcuts_es.md)
+- [Preguntas frecuentes](../../faqs/faqs_es.md)
+- [Limitaciones](../../limitations/limitations_es.md)
+- [Desarrollo](../../development/development_es.md)
 
 ## Agradecimientos
 

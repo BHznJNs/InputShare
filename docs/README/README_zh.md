@@ -1,10 +1,10 @@
 <div align="center">
     <br />
-    <img src="./ui/icon.png" alt="输入流转 Logo" width="160" height="160" />
+    <img src="./src/ui/icon.png" alt="输入流转 Logo" width="160" height="160" />
     <h1>输入流转</h1>
-    <a href="README.md">English</a> | 
-    <a href="https://bhznjns.github.io/InputShare/">项目主页</a> | 
-    <a href="https://github.com/BHznJNs/InputShare/issues">问题反馈</a>
+    <a href="../../README.md">English</a> | 
+    <a href="https://inputshare.github.io/InputShare/">项目主页</a> | 
+    <a href="https://github.com/InputShare/InputShare/issues">问题反馈</a>
     <br />
     <br />
 </div>
@@ -50,10 +50,10 @@ __对于无线连接：__
 
 ## 用户文档
 
-- [快捷键](./docs/shortcuts_zh.md)
-- [常见问题](./docs/faqs_zh.md)
-- [已知缺陷](./docs/limitations_zh.md)
-- [开发](./docs/development_zh.md)
+- [快捷键](../../shortcuts/shortcuts_zh.md)
+- [常见问题](../../faqs/faqs_zh.md)
+- [已知缺陷](../../limitations/limitations_zh.md)
+- [开发](../../development/development_zh.md)
 
 ## 致谢
 
