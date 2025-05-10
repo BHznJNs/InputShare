@@ -1,6 +1,6 @@
 <div align="center">
     <br />
-    <img src="./src/ui/icon.png" alt="输入流转 Logo" width="160" height="160" />
+    <img src="../../src/assets/icon.png" alt="输入流转 Logo" width="160" height="160" />
     <h1>输入流转</h1>
     <a href="../../README.md">English</a> | 
     <a href="https://inputshare.github.io/InputShare/">项目主页</a> | 

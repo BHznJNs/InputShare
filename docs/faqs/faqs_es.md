@@ -9,7 +9,7 @@ Puede consultar este video para agregar la depuración inalámbrica al acceso di
 
 No, __InputShare__ solo comparte el teclado y el ratón, no reflejará la pantalla de su dispositivo Android en su computadora.
 
-## ¿Por qué no puedo usar las teclas de función FX descritas en la sección [Atajos](./shortcuts_en.md) después de conectar mi dispositivo?
+## ¿Por qué no puedo usar las teclas de función FX después de conectar mi dispositivo?
 
 Si está utilizando un sistema Android muy personalizado (por ejemplo, MIUI o HyperOS), intente los siguientes pasos:
 

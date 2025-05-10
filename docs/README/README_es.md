@@ -1,6 +1,6 @@
 <div align="center">
     <br />
-    <img src="./src/ui/icon.png" alt="InputShare Logo" width="160" height="160" />
+    <img src="../../src/assets/icon.png" alt="InputShare Logo" width="160" height="160" />
     <h1>InputShare</h1>
     <a href="README_zh.md">中文介绍</a> |
     <a href="../../README.md">English</a> |

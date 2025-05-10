@@ -9,7 +9,7 @@ You can refer to this video to add the Wireless Debugging to Quick Setting Short
 
 No, __InputShare__ only shares the keyboard and mouse, it will not mirror the screen of your Android device to your computer.
 
-## Why can't I use the FX function keys described in the [Shortcuts](./shortcuts_en.md) section after connecting my device?
+## Why can't I use the FX function keys after connecting my device?
 
 If you are using a heavily customized Android system (e.g., MIUI or HyperOS), please try the following steps:
 
