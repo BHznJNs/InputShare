@@ -23,10 +23,10 @@ def deploy_scrcpy_server() -> tuple[subprocess.Popen, socket.socket] | Exception
     LOGGER.write(LogType.Server, "SCRCPY server connected successfully.")
     return server_process, client_socket
 
-def deploy_reporter_server() -> Exception | None:
+def deploy_reporter_server(debugging: bool = False) -> Exception | None:
     primary_device = AdbController.get_adb_device()
     if isinstance(primary_device, Exception): return primary_device
-    primary_device.forward(f"tcp:{reporter_receiver.SERVER_PORT}", f"tcp:{reporter_receiver.SERVER_PORT}")
+    primary_device.forward(f"tcp:{reporter_receiver.SERVER_PORT}", "localabstract:inputsharereporter")
 
     package_path    = primary_device.shell("pm path " + reporter_receiver.PACKAGE_NAME)
     package_version = primary_device.shell(f"dumpsys package {reporter_receiver.PACKAGE_NAME} | grep versionName")
@@ -41,4 +41,4 @@ def deploy_reporter_server() -> Exception | None:
             return res
 
     LOGGER.write(LogType.Server, "Reporter server deployed successfully.")
-    return reporter_receiver.start_server(primary_device)
+    return reporter_receiver.start_server(primary_device, debugging)
