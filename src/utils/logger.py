@@ -1,14 +1,10 @@
 import sys
 import os
 from enum import Enum
-from utils import script_abs_path
+from utils import get_local_path, script_abs_path
 from utils.multiprocess import current_process_name, is_child_process
 
-if getattr(sys, "frozen", False):
-    LOG_BASE_DIR = os.path.dirname(sys.executable)
-else:
-    script_path = script_abs_path(__file__)
-    LOG_BASE_DIR = script_path.parent
+LOG_BASE_DIR = get_local_path()
 
 class LogType(Enum):
     Info    = 0
@@ -19,7 +15,7 @@ class LogType(Enum):
 class Logger:
     DEFAULT_LOG_FILE_NAME = "InputShare-debug.log" if not is_child_process() else\
                            f"InputShare-debug-{current_process_name()}.log"
-    MAIN_LOG_FILE_PATH = os.path.join(LOG_BASE_DIR, "InputShare-debug.log")
+    MAIN_LOG_FILE_PATH = str(LOG_BASE_DIR / "InputShare-debug.log")
 
     LOG_TYPE_NAME_MAP = {
         LogType.Info  : "Info",
@@ -57,5 +53,5 @@ def unreachable(msg: str | None=None):
     else:
         LOGGER.write(LogType.Error, "entered unreachable code: " + msg)
 
-log_path = os.path.join(LOG_BASE_DIR, Logger.DEFAULT_LOG_FILE_NAME)
+log_path = str(LOG_BASE_DIR / Logger.DEFAULT_LOG_FILE_NAME)
 LOGGER = Logger(log_path)

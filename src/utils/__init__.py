@@ -4,6 +4,7 @@ import screeninfo
 
 from pathlib import Path
 from typing import Any, Callable
+from get_local_path import get_local_path
 
 VoidCallable = Callable[[], None]
 
