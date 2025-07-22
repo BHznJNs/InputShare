@@ -4,6 +4,12 @@ from enum import Enum
 from utils import script_abs_path
 from utils.multiprocess import current_process_name, is_child_process
 
+if getattr(sys, "frozen", False):
+    LOG_BASE_DIR = os.path.dirname(sys.executable)
+else:
+    script_path = script_abs_path(__file__)
+    LOG_BASE_DIR = script_path.parent
+
 class LogType(Enum):
     Info    = 0
     Error   = 1
@@ -13,6 +19,7 @@ class LogType(Enum):
 class Logger:
     DEFAULT_LOG_FILE_NAME = "InputShare-debug.log" if not is_child_process() else\
                            f"InputShare-debug-{current_process_name()}.log"
+    MAIN_LOG_FILE_PATH = os.path.join(LOG_BASE_DIR, "InputShare-debug.log")
 
     LOG_TYPE_NAME_MAP = {
         LogType.Info  : "Info",
@@ -22,6 +29,7 @@ class Logger:
     }
 
     def __init__(self, path: str) -> None:
+        self.path = path
         self.file = open(path, "w+", encoding="utf-8")
         self.file.write("")
 
@@ -49,11 +57,5 @@ def unreachable(msg: str | None=None):
     else:
         LOGGER.write(LogType.Error, "entered unreachable code: " + msg)
 
-if getattr(sys, "frozen", False):
-    log_base_dir = os.path.dirname(sys.executable)
-else:
-    script_path = script_abs_path(__file__)
-    log_base_dir = script_path.parent
-
-log_path = os.path.join(log_base_dir, Logger.DEFAULT_LOG_FILE_NAME)
+log_path = os.path.join(LOG_BASE_DIR, Logger.DEFAULT_LOG_FILE_NAME)
 LOGGER = Logger(log_path)

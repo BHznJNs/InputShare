@@ -3,6 +3,7 @@ import tkinter as tk
 import darkdetect
 
 from utils import VoidCallable, screen_size
+from utils.config_manager import get_config
 from utils.i18n import get_i18n
 from utils.logger import LogType, LOGGER
 
@@ -47,6 +48,7 @@ def interrupt(root: tk.Tk, toplevel: tk.Toplevel, label1: tk.Label, label2: tk.L
 
 def open_mask_window():
     i18n = get_i18n()
+    config = get_config()
     root = tk.Tk()
     root.wm_title(i18n(["InputShare Mask", "输入流转 —— 蒙版"]))
     root.wm_attributes("-alpha", 0.01)
@@ -71,12 +73,12 @@ def open_mask_window():
 
     label1 = tk.Label(
         master=label_toplevel,
-        text=i18n(["Use <Ctrl>+<Alt>+q to quit", "使用 <Ctrl>+<Alt>+q 退出程序"]),
+        text=i18n([f"Use {config.exit_hotkey} to quit", f"使用 {config.exit_hotkey} 退出程序"]),
         font=larger_font,
     )
     label2 = tk.Label(
         master=label_toplevel,
-        text=i18n(["Use <Ctrl>+<Alt>+s to toggle", "使用 <Ctrl>+<Alt>+s 切换控制"]),
+        text=i18n([f"Use {config.toggle_hotkey} to toggle", f"使用 {config.toggle_hotkey} 切换控制"]),
         font=larger_font,
     )
     label1.pack(padx=8, pady=4, anchor="w")

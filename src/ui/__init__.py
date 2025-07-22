@@ -6,3 +6,4 @@ ICON_PNG_PATH = script_path.joinpath("../assets/icon.png")
 
 CONNECT_PAGE_PATH = script_path.joinpath("./frontend-dist/connect.html")
 SETTINGS_PAGE_PATH = script_path.joinpath("./frontend-dist/settings.html")
+FAQS_PAGE_PATH = script_path.joinpath("./frontend-dist/faqs.html")

@@ -1,7 +1,6 @@
 import threading
 import time
 from pynput import keyboard, mouse
-from input import EXIT_KEY_COMBINATION, SWITCH_KEY_COMBINATION
 from scrcpy_client.clipboard_event import GetClipboardEvent, SetClipboardEvent
 from scrcpy_client.hid_event import KeyEmptyEvent
 from input.callbacks import KeyEventCallback,\
@@ -43,8 +42,8 @@ def schedule_exit(errno: Exception | None = None):
     schedule_toggle()
     exit_event.set()
 
-switch_hotkey = keyboard.HotKey(keyboard.HotKey.parse(SWITCH_KEY_COMBINATION), schedule_toggle)
-exit_hotkey = keyboard.HotKey(keyboard.HotKey.parse(EXIT_KEY_COMBINATION), schedule_exit)
+toggle_hotkey = keyboard.HotKey(keyboard.HotKey.parse(get_config().toggle_hotkey), schedule_toggle)
+exit_hotkey = keyboard.HotKey(keyboard.HotKey.parse(get_config().exit_hotkey), schedule_exit)
 
 def keyboard_press_handler_factory(callback: KeyEventCallback):
     def keyboard_press_handler(k: keyboard.Key | keyboard.KeyCode | None):
@@ -53,7 +52,7 @@ def keyboard_press_handler_factory(callback: KeyEventCallback):
         if k is None: return
 
         canonical_k = keyboard_listener.canonical(k)
-        switch_hotkey.press(canonical_k)
+        toggle_hotkey.press(canonical_k)
         exit_hotkey.press(canonical_k)
         callback(canonical_k, is_redirecting)
     return keyboard_press_handler
@@ -65,7 +64,7 @@ def keyboard_release_handler_factory(callback: KeyEventCallback):
         if k is None: return
 
         canonical_k = keyboard_listener.canonical(k)
-        switch_hotkey.release(canonical_k)
+        toggle_hotkey.release(canonical_k)
         exit_hotkey.release(canonical_k)
         callback(canonical_k, is_redirecting)
     return keyboard_release_handler

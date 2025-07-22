@@ -1,2 +1,2 @@
-SWITCH_KEY_COMBINATION = "<ctrl>+<alt>+s"
-EXIT_KEY_COMBINATION = "<ctrl>+<alt>+q"
+TOGGLE_DEFAULT_KEY_COMBINATION = "<ctrl>+<alt>+s"
+EXIT_DEFAULT_KEY_COMBINATION = "<ctrl>+<alt>+q"

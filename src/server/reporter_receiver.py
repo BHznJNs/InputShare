@@ -28,6 +28,8 @@ def install_server(device: AdbDevice) -> Exception | None:
     script_path = script_abs_path(__file__)
     server_binary_path = Path.joinpath(script_path, SERVER_EXECUTABLE_NAME)
     try:
+        # first uninstall the existing version to prevent install error
+        device.uninstall(PACKAGE_NAME)
         device.install(str(server_binary_path))
     except AdbInstallError | BrokenPipeError as e:
         LOGGER.write(LogType.Error, "Reporter install error: " + str(e))
