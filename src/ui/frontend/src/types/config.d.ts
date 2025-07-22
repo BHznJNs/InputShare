@@ -4,6 +4,10 @@ declare global {
         detect_port: boolean
         sync_clipboard: boolean
         share_keyboard_only: boolean
+
+        toggle_hotkey: string
+        exit_hotkey: string
+
         theme: "system" | "dark" | "light"
         mouse_speed: number
         edge_toggling: boolean

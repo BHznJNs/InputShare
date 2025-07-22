@@ -25,6 +25,7 @@ export default defineConfig({
       input: {
         connect: resolve(__dirname, "connect.html"),
         settings: resolve(__dirname, "settings.html"),
+        faqs: resolve(__dirname, "faqs.html"),
       },
     },
   },
@@ -36,11 +37,6 @@ export default defineConfig({
           dest: "assets",
         },
       ],
-    }),
-    pluginExternal({
-      externals: {
-        webui: "webui"
-      }
     }),
     topLevelAwait({
       // The export name of top-level await promise for each chunk module

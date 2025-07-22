@@ -1,5 +1,5 @@
 {
-  "name": "vite-project",
+  "name": "inputshare-frontend",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -12,10 +12,14 @@
   "dependencies": {
     "@shoelace-style/shoelace": "^2.20.1",
     "detect-browser": "^5.3.0",
+    "interactjs": "^1.10.27",
     "ipaddr.js": "^2.2.0",
-    "lit": "^3.2.1"
+    "lit": "^3.2.1",
+    "marked": "^15.0.11"
   },
   "devDependencies": {
+    "@interactjs/types": "^1.10.27",
+    "@types/marked": "^5.0.2",
     "typescript": "~5.7.2",
     "vite": "^6.3.1",
     "vite-plugin-external": "^6.2.1",
