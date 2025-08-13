@@ -18,6 +18,14 @@ Si vous utilisez un système Android fortement personnalisé (par exemple, MIUI 
 
 Après avoir terminé ces réglages, essayez d'utiliser à nouveau les touches de raccourci.
 
+## Pourquoi ne puis-je pas revenir à l'ordinateur depuis la tablette par balayage sur le bord après avoir activé "Basculer par bord" ?
+
+Cela pourrait être parce que vous avez maintenu le bouton de la souris enfoncé lors du passage à la tablette. Veuillez appuyer à nouveau sur le bouton et réessayer.
+
 ## Dois-je configurer ADB moi-même ?
 
 Non, il y a un ADB intégré empaqueté, qui sera appelé automatiquement.
+
+## Pourquoi échoue-je souvent à me connecter avec une connexion filaire ?
+
+Cela pourrait être parce que lorsque vous utilisez une connexion filaire, vous avez sélectionné "Charge uniquement" pour la configuration USB. Dans ce mode, certains appareils Android ne peuvent pas établir une connexion ADB filaire.
