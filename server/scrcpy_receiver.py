@@ -24,10 +24,12 @@ def push_server(device: AdbDevice):
     server_binary_path = Path.joinpath(script_path, SERVER_EXECUTABLE_NAME)
     device.sync.push(str(server_binary_path), target_path)
 
-def server_process_factory() -> subprocess.Popen | Exception:
-    INSTALL_SCRCPY_SERVER_COMMAND = "CLASSPATH=/data/local/tmp/scrcpy-server-manual.jar \
+def server_process_factory(enable_audio: bool=False) -> subprocess.Popen | Exception:
+    # the raw codec makes the server send bare PCM, so no decoding is needed here
+    audio_options = "audio=true audio_codec=raw" if enable_audio else "audio=false"
+    INSTALL_SCRCPY_SERVER_COMMAND = f"CLASSPATH=/data/local/tmp/scrcpy-server-manual.jar \
 app_process / com.genymobile.scrcpy.Server 2.7 \
-tunnel_forward=true video=false audio=false control=true \
+tunnel_forward=true video=false {audio_options} control=true \
 cleanup=false raw_stream=true send_dummy_byte=true max_size=4096"
     primary_device = get_adb_device()
     if isinstance(primary_device, Exception): return primary_device
@@ -47,9 +49,13 @@ cleanup=false raw_stream=true send_dummy_byte=true max_size=4096"
     time.sleep(1)
     return process
 
-def try_connect_server(host: str, port: int=SERVER_PORT) -> socket.socket | Exception:
+def try_connect_server(host: str, port: int=SERVER_PORT, expect_dummy_byte: bool=True) -> socket.socket | Exception:
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect((host, port))
+
+    # the server sends the dummy byte on the first connected socket only
+    if not expect_dummy_byte:
+        return client_socket
 
     client_socket.settimeout(3)
     try:

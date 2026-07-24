@@ -62,11 +62,21 @@ if __name__ == "__main__":
             sys.exit(1)
         append_adb_device(device_list[0])
 
-    res = deploy_scrcpy_server()
+    res = deploy_scrcpy_server(get_config().forward_audio)
     if isinstance(res, Exception):
         close_notification_resolver(res)
         sys.exit(1)
-    scrcpy_server_process, scrcpy_client_socket = res
+    scrcpy_server_process, scrcpy_client_socket, scrcpy_audio_socket = res
+
+    stop_audio_player: Callable | None = None
+    if scrcpy_audio_socket is not None:
+        try:
+            from server.audio_player import audio_player_factory
+            stop_audio_player = audio_player_factory(scrcpy_audio_socket)
+        except Exception as e:
+            # a missing output device should not prevent the input sharing
+            LOGGER.write(LogType.Error, "Audio playing unavailable: " + str(e))
+            scrcpy_audio_socket.close()
 
     stop_scrcpy_receiver = scrcpy_receiver.server_receiver_factory(scrcpy_client_socket)
     stop_reporter_receiver: Callable | None = None
@@ -87,6 +97,7 @@ if __name__ == "__main__":
     LOGGER.write(LogType.Info, "Terminated, closing...")
     stop_scrcpy_receiver()
     stop_reporter_receiver and stop_reporter_receiver() # type: ignore
+    stop_audio_player and stop_audio_player() # type: ignore
     scrcpy_server_process.terminate()
 
     close_notification_resolver(main_errno)

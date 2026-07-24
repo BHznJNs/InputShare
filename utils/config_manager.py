@@ -14,6 +14,7 @@ class ConfigFile:
     scan_port: bool = False
     sync_clipboard: bool = True
     share_keyboard_only: bool = False
+    forward_audio: bool = False
 
     # settings
     theme: str = "system"

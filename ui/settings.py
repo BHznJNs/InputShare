@@ -182,6 +182,28 @@ def mount_elements(root: ctk.CTk):
         check_box.grid(row=0, column=1)
         info_label.grid(row=1, column=0, columnspan=2, padx=20)
 
+    def forward_audio_section():
+        nonlocal settings_scroll_frame, smaller_font, normal_font, larger_font, forward_audio_var
+        forward_audio_frame = ctk.CTkFrame(master=settings_scroll_frame)
+        forward_audio_label = ctk.CTkLabel(
+            master=forward_audio_frame,
+            font=larger_font,
+            text=i18n(["Audio Forwarding: ", "音频转发："]))
+        check_box = ctk.CTkCheckBox(
+            master=forward_audio_frame,
+            text="",
+            variable=forward_audio_var)
+        info_label = ctk.CTkLabel(
+            master=forward_audio_frame,
+            font=smaller_font,
+            justify="left",
+            text=i18n(["When enabled, the audio of the Android device is played on this computer.\nRequires Android 11 or above.",
+                       "启用后，安卓设备的音频将在本电脑上播放。需要安卓 11 及以上版本。"]))
+        forward_audio_frame.pack(fill="x", pady=(20, 0))
+        forward_audio_label.grid(row=0, column=0, padx=(20, 0), sticky="w")
+        check_box.grid(row=0, column=1)
+        info_label.grid(row=1, column=0, columnspan=2, padx=20)
+
     def mount_language_section():
         nonlocal settings_scroll_frame, smaller_font, normal_font, larger_font, language_var
         language_frame = ctk.CTkFrame(master=settings_scroll_frame)
@@ -216,6 +238,7 @@ def mount_elements(root: ctk.CTk):
         config.device_position = device_position_var.get()
         config.trigger_margin  = int(trigger_margin_var.get())
         config.keep_wakeup     = keep_wakeup_var.get()
+        config.forward_audio   = forward_audio_var.get()
         config.language        = language_var.get()
         root.destroy()
 
@@ -233,12 +256,14 @@ def mount_elements(root: ctk.CTk):
     device_position_var = ctk.StringVar (master=settings_scroll_frame, value=config.device_position)
     trigger_margin_var  = ctk.StringVar (master=settings_scroll_frame, value=str(config.trigger_margin))
     keep_wakeup_var     = ctk.BooleanVar(master=settings_scroll_frame, value=config.keep_wakeup)
+    forward_audio_var   = ctk.BooleanVar(master=settings_scroll_frame, value=config.forward_audio)
     language_var        = ctk.StringVar (master=settings_scroll_frame, value=i18n([ENGLISH_LANGUAGE, CHINESE_LANGUAGE]))
 
     mouse_theme_section()
     mount_speed_section()
     edge_toggling_section()
     keep_wakeup_section()
+    forward_audio_section()
     mount_language_section()
 
     # action buttons section
