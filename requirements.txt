@@ -1,6 +1,6 @@
 adbutils==1.2.15
 customtkinter==5.2.2
-pynput==1.7.6
+pynput==1.8.1
 notify_py==0.3.43
 pyperclip==1.9.0
 pystray==0.19.5
