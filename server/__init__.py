@@ -1,25 +1,55 @@
 import socket
 import subprocess
+from adbutils import AdbDevice
 from server import scrcpy_receiver, reporter_receiver
 from utils.adb_controller import get_adb_device
 from utils.logger import LOGGER, LogType
 
-def deploy_scrcpy_server() -> tuple[subprocess.Popen, socket.socket] | Exception:
+# audio capture is only available since Android 11
+AUDIO_MINIMAL_SDK_VERSION = 30
+
+def is_audio_supported(device: AdbDevice) -> bool:
+    sdk_version = device.shell("getprop ro.build.version.sdk")
+    assert type(sdk_version) == str
+    if not sdk_version.strip().isdigit():
+        LOGGER.write(LogType.Error, "Failed to read device SDK version, audio disabled.")
+        return False
+    if int(sdk_version) < AUDIO_MINIMAL_SDK_VERSION:
+        LOGGER.write(LogType.Server, "Device is older than Android 11, audio disabled.")
+        return False
+    return True
+
+def deploy_scrcpy_server(enable_audio: bool=False) -> tuple[subprocess.Popen, socket.socket, socket.socket | None] | Exception:
     primary_device = get_adb_device()
     if isinstance(primary_device, Exception): return primary_device
 
     scrcpy_receiver.push_server(primary_device)
     primary_device.forward(f"tcp:{scrcpy_receiver.SERVER_PORT}", "localabstract:scrcpy")
 
-    server_process = scrcpy_receiver.server_process_factory()
+    # requesting audio from a device that can not capture it
+    # makes the server abort, which would break the input sharing too
+    enable_audio = enable_audio and is_audio_supported(primary_device)
+
+    server_process = scrcpy_receiver.server_process_factory(enable_audio)
     if isinstance(server_process, Exception):
         return server_process
 
-    client_socket = scrcpy_receiver.try_connect_server("localhost")
+    # with the video stream disabled, the audio socket is the first one
+    # to be connected, so it is the one receiving the dummy byte
+    audio_socket = None
+    if enable_audio:
+        audio_socket = scrcpy_receiver.try_connect_server("localhost")
+        if isinstance(audio_socket, Exception):
+            server_process.terminate()
+            return audio_socket
+
+    client_socket = scrcpy_receiver.try_connect_server("localhost", expect_dummy_byte=not enable_audio)
     if isinstance(client_socket, Exception):
+        audio_socket and audio_socket.close()
+        server_process.terminate()
         return client_socket
 
-    return server_process, client_socket
+    return server_process, client_socket, audio_socket
 
 def deploy_reporter_server() -> Exception | None:
     primary_device = get_adb_device()

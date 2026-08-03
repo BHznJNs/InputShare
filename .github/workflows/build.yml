@@ -41,6 +41,7 @@ jobs:
             --add-data "./server/scrcpy-server;server/" `
             --add-data "./server/reporter.apk;server/" `
             --add-data "./build_venv/Lib/site-packages/customtkinter;customtkinter/" `
+            --collect-all sounddevice `
             --noconfirm main.py
         env:
           PYTHONUNBUFFERED: 1
